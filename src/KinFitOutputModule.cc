@@ -3,11 +3,6 @@
 #include <iostream>
 #include <vector>
 
-KinFitOutputModule::KinFitOutputModule(TTree* iTree, bool iGenEvents) :
-  tree(iTree),
-  genEvents(iGenEvents)
-{}
-
 void KinFitOutputModule::run()
 {
   makeHistograms();

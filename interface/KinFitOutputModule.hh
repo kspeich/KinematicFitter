@@ -18,7 +18,7 @@
 class KinFitOutputModule
 {
 public:
-  KinFitOutputModule(TTree* iTree, bool iGenEvents);
+  KinFitOutputModule(TTree* iTree) {tree = iTree;};
   ~KinFitOutputModule() {};
   
   void run();
