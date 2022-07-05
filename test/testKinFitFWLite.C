@@ -23,9 +23,10 @@
 void testKinFitFWLite()
 {
   // Read the file
-  TFile *data = TFile::Open("/afs/cern.ch/work/s/skkwan/public/forKodai/SUSYGluGluToHToAA_AToBB_AToTauTau_M-45_Skim.root");
+  // TFile *data = TFile::Open("/afs/cern.ch/work/s/skkwan/public/forKodai/SUSYGluGluToHToAA_AToBB_AToTauTau_M-45_Skim.root");
+  TFile *data = TFile::Open("selectedEvents.root");
   TTree *tree = (TTree *) data->Get("mutau_tree");
 
-  auto kinFitOutputMod = KinFitOutputModule(tree, true);
+  auto kinFitOutputMod = KinFitOutputModule(tree);
   kinFitOutputMod.run();
 }

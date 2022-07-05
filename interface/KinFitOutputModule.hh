@@ -25,7 +25,6 @@ public:
 
 private:
   TTree* tree;
-  bool genEvents; // True when running on a generated event
   std::vector<TH1F*> histograms;
 
   Double_t ErrEt(Float_t Et, Float_t Eta);

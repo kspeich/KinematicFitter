@@ -47,6 +47,9 @@ outTree.Branch("beta_deepflavour_2", eta4, "beta_deepflavour_2/F")
 outTree.Branch("bphi_deepflavour_2", phi4, "bphi_deepflavour_2/F")
 outTree.Branch("bm_deepflavour_2", m4, "bm_deepflavour_2/F")
 
+tauMass = 1.77686
+bMass = 4.18
+
 passed = 0
 
 for count, event in enumerate(inTree):             # count is the index, e is the event data
@@ -104,19 +107,19 @@ for count, event in enumerate(inTree):             # count is the index, e is th
         pt1[0] = ptList[tauList[0]]
         eta1[0] = etaList[tauList[0]]
         phi1[0] = phiList[tauList[0]]
-        m1[0] = massList[tauList[0]]
+        m1[0] = tauMass
         pt2[0] = ptList[tauList[1]]
         eta2[0] = etaList[tauList[1]]
         phi2[0] = phiList[tauList[1]]
-        m2[0] = massList[tauList[1]]
+        m2[0] = tauMass
         pt3[0] = ptList[bList[0]]
         eta3[0] = etaList[bList[0]]
         phi3[0] = phiList[bList[0]]
-        m3[0] = massList[bList[0]]
+        m3[0] = bMass
         pt4[0] = ptList[tauList[1]]
         eta4[0] = etaList[tauList[1]]
         phi4[0] = phiList[tauList[1]]
-        m4[0] = massList[tauList[1]]
+        m4[0] = bMass
         
         outTree.Fill()
 

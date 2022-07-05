@@ -106,7 +106,7 @@ std::vector<const TMatrixD*> KinFitOutputModule::fitEvent(std::vector<TLorentzVe
   TFitParticleEtEtaPhi *bJet1 = new TFitParticleEtEtaPhi( "bJet1", "bJet1", &bJet1Vec, &m3 );
 
   // mTau and hTau must make an a pseudoscalar
-  TFitConstraintM *mCons1 = new TFitConstraintM( "WMassConstraint", "WMass-Constraint", 0, 0 , 45.);
+  TFitConstraintM *mCons1 = new TFitConstraintM( "AMassConstraint", "AMass-Constraint", 0, 0 , 45.);
   mCons1->addParticles1( mTau, hTau );
 
   std::vector<TFitParticleEtEtaPhi*> particles = {mTau, hTau, bJet1};
@@ -126,7 +126,7 @@ std::vector<const TMatrixD*> KinFitOutputModule::fitEvent(std::vector<TLorentzVe
     TFitParticleEtEtaPhi *bJet2 = new TFitParticleEtEtaPhi( "bJet2", "bJet2", &bJet2Vec, &m4 );
 
     // bJet1 and bJet2 must make an a pseudoscalar: this only happens when there is a second b-jet
-    TFitConstraintM *mCons2 = new TFitConstraintM( "TopMassConstraint", "TopMass-Constraint", 0, 0 , 45.);
+    TFitConstraintM *mCons2 = new TFitConstraintM( "AMassConstraint", "AMass-Constraint", 0, 0 , 45.);
     mCons2->addParticles1( bJet1, bJet2 );
 
     particles.push_back(bJet2);
@@ -151,11 +151,11 @@ std::vector<const TMatrixD*> KinFitOutputModule::fitEvent(std::vector<TLorentzVe
   fitter->setVerbosity(3);
 
   // Perform the fit
-  std::cout << "Performing kinematic fit..." << std::endl;
-  print(fitter);
-  fitter->fit();
-  std::cout << "Done." << std::endl;
-  print(fitter);
+  // std::cout << "Performing kinematic fit..." << std::endl;
+  // print(fitter);
+  // fitter->fit();
+  // std::cout << "Done." << std::endl;
+  // print(fitter);
   
   std::vector<const TMatrixD*> params = {};
   
@@ -231,7 +231,7 @@ void KinFitOutputModule::makeHistograms()
   // Loop through each event, perform necessary calculations, and fill the histograms
   for(int i = 0; i < tree->GetEntries(); i++)   // GetEntries() returns the # of entries in the branch
   {
-    std::cout << "Event #: " << i << std::endl;
+    // std::cout << "Event #: " << i << std::endl;
 
     tree->GetEntry(i);
 
