@@ -1,7 +1,7 @@
 from ROOT import TFile, TTree, TH1D, TLorentzVector
 from array import array
 
-inFile = TFile.Open("root://cmsxrootd.fnal.gov//store/mc/RunIIAutumn18NanoAODv7/SUSYGluGluToHToAA_AToBB_AToTauTau_M-45_FilterTauTauTrigger_TuneCP5_13TeV_madgraph_pythia8/NANOAODSIM/Nano02Apr2020_102X_upgrade2018_realistic_v21-v1/260000/AE82D64D-12A8-B547-9A00-339213036849.root")
+inFile = TFile.Open("SUSYGluGluToHToAA_AToBB_AToTauTau_M-45_FilterTauTauTrigger_TuneCP5_13TeV_madgraph_pythia8.root")
 inTree = inFile.Get("Events")           # Get the Events TTree
 nentries = inTree.GetEntries()          # Number of entries in the Events TTree
 # print("nentries={0:d}".format(nentries))
@@ -10,7 +10,7 @@ nentries = inTree.GetEntries()          # Number of entries in the Events TTree
 outFile = TFile("selectedEvents.root", 'recreate')
 outTree = TTree("mutau_tree", "mutau_tree")
 
-# Create arrays => these will be used to create the TBranches later
+# Create arrays
 # 1, 2: taus; 3, 4: b quarks
 pt1 = array('f', [0])
 eta1 = array('f', [0])
@@ -29,6 +29,7 @@ eta4 = array('f', [0])
 phi4 = array('f', [0])
 m4 = array('f', [0])
 
+# Create TBranches with the arrays
 outTree.Branch("pt_1", pt1, "pt_1/F")
 outTree.Branch("eta_1", eta1, "eta_1/F")
 outTree.Branch("phi_1", phi1, "phi_1/F")
@@ -41,17 +42,33 @@ outTree.Branch("bpt_deepflavour_1", pt3, "bpt_deepflavour_1/F")
 outTree.Branch("beta_deepflavour_1", eta3, "beta_deepflavour_1/F")
 outTree.Branch("bphi_deepflavour_1", phi3, "bphi_deepflavour_1/F")
 outTree.Branch("bm_deepflavour_1", m3, "bm_deepflavour_1/F")
+outTree.Branch("bpt_deepflavour_2", pt4, "bpt_deepflavour_2/F")
+outTree.Branch("beta_deepflavour_2", eta4, "beta_deepflavour_2/F")
+outTree.Branch("bphi_deepflavour_2", phi4, "bphi_deepflavour_2/F")
+outTree.Branch("bm_deepflavour_2", m4, "bm_deepflavour_2/F")
+
+passed = 0
 
 for count, event in enumerate(inTree):             # count is the index, e is the event data
-    pdgIdList = event.GenPart_pdgId
-    motherList = event.GenPart_genPartIdxMother
-    ptList = event.GenPart_pt
-    etaList = event.GenPart_eta
-    phiList = event.GenPart_phi
-    massList = event.GenPart_mass
+    # print("Event " + str(count) + " out of " + str(nentries))
 
-    nHiggs = 0                  # number of Higgs
+    nGenPart = event.nGenPart
 
+    pdgIdList = []
+    motherList = []
+    ptList = []
+    etaList = []
+    phiList = []
+    massList = []
+
+    for i in range(nGenPart):
+        pdgIdList.append(event.GenPart_pdgId[i])
+        motherList.append(event.GenPart_genPartIdxMother[i])
+        ptList.append(event.GenPart_pt[i])
+        etaList.append(event.GenPart_eta[i])
+        phiList.append(event.GenPart_phi[i])
+        massList.append(event.GenPart_mass[i])
+    
     # Lists containing indices
     higgsList = []              # All Higgs
     aList = []                  # All pseudoscalars that are from a Higgs
@@ -61,27 +78,28 @@ for count, event in enumerate(inTree):             # count is the index, e is th
     # Event selection
 
     # First selection: Higgs
-    for pdgId in pdgIdList:                
-        if (abs(pdgId) == 25):
-            nHiggs += 1
-            higgsList.append(pdgIdList.index(pdgId))
-
+    for i in range(nGenPart):                
+        if (pdgIdList[i] == 25):
+            higgsList.append(i)
+    
     # Second selection: Higgs must decay to two pseudoscalars
     for higgs in higgsList:
-        for mother in motherList:
-            if (mother == higgs and pdgIdList[motherList.index(mother)] == 36):
-                aList.append(motherList.index(mother))
+        for i in range(nGenPart):
+            if (motherList[i] == higgs and pdgIdList[i] == 36):
+                aList.append(i)
 
     # Third selection: pseudoscalars decay into b quarks and taus
     for a in aList:
-        for mother in motherList:
-            if (mother == a and abs(pdgIdList[motherList.index(mother)]) == 15):
-                tauList.append(motherList.index(mother))
-            elif (mother == a and abs(pdgIdList[motherList.index(mother)]) == 5):
-                bList.append(motherList.index(mother))
+        for i in range(nGenPart):
+            if (motherList[i] == a and abs(pdgIdList[i]) == 15):
+                tauList.append(i)
+            elif (motherList[i] == a and abs(pdgIdList[i]) == 5):
+                bList.append(i)
+    
+    # Fourth selection: at least 2 b quarks and 2 taus
+    if (len(tauList) >= 2 and len(bList) >= 2):
+        passed += 1
 
-    # Fourth selection: 2 b quarks and 2 taus
-    if (len(tauList) == 2 and len(bList) == 2):
         # Add elements to each list
         pt1[0] = ptList[tauList[0]]
         eta1[0] = etaList[tauList[0]]
@@ -102,5 +120,7 @@ for count, event in enumerate(inTree):             # count is the index, e is th
         
         outTree.Fill()
 
+# print(str(passed) + "/" + str(nentries) + " events passed")
+
 outFile.Write()
-outFile.Close()        
+outFile.Close()
