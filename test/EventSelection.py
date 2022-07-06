@@ -99,8 +99,8 @@ for count, event in enumerate(inTree):             # count is the index, e is th
             elif (motherList[i] == a and abs(pdgIdList[i]) == 5):
                 bList.append(i)
     
-    # Fourth selection: at least 2 b quarks and 2 taus
-    if (len(tauList) >= 2 and len(bList) >= 2):
+    # Fourth selection: 2 b quarks and 2 taus
+    if (len(tauList) == 2 and len(bList) == 2):
         passed += 1
 
         # Add elements to each list
@@ -123,7 +123,7 @@ for count, event in enumerate(inTree):             # count is the index, e is th
         
         outTree.Fill()
 
-# print(str(passed) + "/" + str(nentries) + " events passed")
+print(str(passed) + "/" + str(nentries) + " events passed")
 
 outFile.Write()
 outFile.Close()
