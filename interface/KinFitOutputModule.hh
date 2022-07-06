@@ -31,10 +31,12 @@ private:
   Double_t ErrEta(Float_t Et, Float_t Eta);
   Double_t ErrPhi(Float_t Et, Float_t Eta);
   
+  Float_t CalculatePt(Float_t Et, Float_t eta, Float_t phi, Float_t m);
+
   void print(TKinFitter *fitter);
 
   std::vector<const TMatrixD*> fitEvent(std::vector<TLorentzVector> particleVectors);
-  int findParent(std::vector<std::vector<Float_t>> rawData, int rowNum, int motherPdgId);
+
   void makeHistograms();
   void drawHistograms();
 };

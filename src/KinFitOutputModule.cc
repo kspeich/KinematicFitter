@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <vector>
+#include <cmath>
 
 void KinFitOutputModule::run()
 {
@@ -57,6 +58,14 @@ Double_t KinFitOutputModule::ErrPhi(Float_t Et, Float_t Eta) {
   return InvPerr2;
 }
 
+Float_t KinFitOutputModule::CalculatePt(Float_t Et, Float_t eta, Float_t phi, Float_t m)
+{
+  Float_t E = Et * cosh(eta);
+  Float_t p = pow(E * E - m * m, 0.5);
+
+  return (p * Et / E);
+}
+
 void KinFitOutputModule::print(TKinFitter *fitter)
 {
   std::cout << "=============================================" << std ::endl;
@@ -106,7 +115,7 @@ std::vector<const TMatrixD*> KinFitOutputModule::fitEvent(std::vector<TLorentzVe
   TFitParticleEtEtaPhi *bJet1 = new TFitParticleEtEtaPhi( "bJet1", "bJet1", &bJet1Vec, &m3 );
 
   // mTau and hTau must make an a pseudoscalar
-  TFitConstraintM *mCons1 = new TFitConstraintM( "AMassConstraint", "AMass-Constraint", 0, 0 , 45.);
+  TFitConstraintM *mCons1 = new TFitConstraintM( "AMassConstraint1", "AMass-Constraint1", 0, 0 , 45.);
   mCons1->addParticles1( mTau, hTau );
 
   std::vector<TFitParticleEtEtaPhi*> particles = {mTau, hTau, bJet1};
@@ -126,7 +135,7 @@ std::vector<const TMatrixD*> KinFitOutputModule::fitEvent(std::vector<TLorentzVe
     TFitParticleEtEtaPhi *bJet2 = new TFitParticleEtEtaPhi( "bJet2", "bJet2", &bJet2Vec, &m4 );
 
     // bJet1 and bJet2 must make an a pseudoscalar: this only happens when there is a second b-jet
-    TFitConstraintM *mCons2 = new TFitConstraintM( "AMassConstraint", "AMass-Constraint", 0, 0 , 45.);
+    TFitConstraintM *mCons2 = new TFitConstraintM( "AMassConstraint2", "AMass-Constraint2", 0, 0 , 45.);
     mCons2->addParticles1( bJet1, bJet2 );
 
     particles.push_back(bJet2);
@@ -153,7 +162,7 @@ std::vector<const TMatrixD*> KinFitOutputModule::fitEvent(std::vector<TLorentzVe
   // Perform the fit
   // std::cout << "Performing kinematic fit..." << std::endl;
   // print(fitter);
-  // fitter->fit();
+  fitter->fit();
   // std::cout << "Done." << std::endl;
   // print(fitter);
   
@@ -175,24 +184,6 @@ std::vector<const TMatrixD*> KinFitOutputModule::fitEvent(std::vector<TLorentzVe
   return params;
 }
 
-int KinFitOutputModule::findParent(std::vector<std::vector<Float_t>> rawData, int rowNum, int motherPdgId)
-{
-  // row = {instance, event, pdgId, motherInstance, pt, eta, phi, m}
-  // so event is the 1st (2nd) element in the row motherInstance is the 3rd (4th) element in the row
-  auto event = rawData[rowNum][1];
-  auto motherInstance = rawData[rowNum][3];
-
-  for (unsigned long int motherRow = 0; motherRow < rawData.size(); motherRow++)
-  {
-    if (rawData[motherRow][1] == event && rawData[motherRow][3] == motherInstance && rawData[motherRow][4] == motherPdgId)
-    {
-      return motherRow;
-    }
-  }
-
-  return -9999;
-}
-
 void KinFitOutputModule::makeHistograms()
 {
   // Initialize the unfitted histograms
@@ -206,7 +197,7 @@ void KinFitOutputModule::makeHistograms()
   auto *hEtFit = new TH1F("Fitted Transverse Energy", "Fitted Transverse Energy", 50, 0, 200);
   auto *hEtaFit = new TH1F("Fitted Eta", "Fitted Eta", 50, -10, 10);
   auto *hPhiFit = new TH1F("Fitted Phi", "Fitted Phi", 50, -4, 4);
-  auto *hTauTauInvMassFit = new TH1F("Fitted Tau Tau Invariant mass", "Fitted Tau Tau Invariant Mass", 50, 0, 200);
+  auto *hTauTauInvMassFit = new TH1F("Fitted Tau Tau Invariant Mass", "Fitted Tau Tau Invariant Mass", 50, 0, 200);
   auto *hBBInvMassFit = new TH1F("Fitted BB Invariant Mass", "Fitted BB Invariant Mass", 50, 0, 200);
 
   // Set the addresses of the branches to elsewhere
@@ -261,12 +252,31 @@ void KinFitOutputModule::makeHistograms()
     }
 
     auto fittedValues = fitEvent(particleVectors);
+    std::vector<TLorentzVector> fittedParticleVectors;
+    std::vector<Float_t> masses = {m1, m2, m3, m4};
 
-    for (const TMatrixD* vecFit : fittedValues)
+    for (unsigned long int i = 0; i < fittedValues.size(); i++)
     {
-      hEtFit->Fill(vecFit->GetMatrixArray()[0]);
-      hEtaFit->Fill(vecFit->GetMatrixArray()[1]);
-      hPhiFit->Fill(vecFit->GetMatrixArray()[2]);
+      TLorentzVector v;
+
+      Float_t et = fittedValues[i]->GetMatrixArray()[0];
+      Float_t eta = fittedValues[i]->GetMatrixArray()[1];
+      Float_t phi = fittedValues[i]->GetMatrixArray()[2];
+      Float_t m = masses[i];
+      Float_t pt = CalculatePt(et, eta, phi, m);
+
+      hEtFit->Fill(et);
+      hEtaFit->Fill(eta);
+      hPhiFit->Fill(phi);
+
+      v.SetPtEtaPhiM(pt, eta, phi, m);
+      fittedParticleVectors.push_back(v);
+    }
+
+    hTauTauInvMassFit->Fill((fittedParticleVectors[0] + fittedParticleVectors[1]).M());
+    if (fittedParticleVectors.size() >= 4)
+    {
+      hBBInvMassFit->Fill((fittedParticleVectors[2] + fittedParticleVectors[3]).M());
     }
   }
 
