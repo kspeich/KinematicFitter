@@ -28,6 +28,10 @@ pt4 = array('f', [0])
 eta4 = array('f', [0])
 phi4 = array('f', [0])
 m4 = array('f', [0])
+pt5 = array('f', [0])
+eta5 = array('f', [0])
+phi5 = array('f', [0])
+m5 = array('f', [0])
 
 # Create TBranches with the arrays
 outTree.Branch("pt_1", pt1, "pt_1/F")
@@ -46,6 +50,10 @@ outTree.Branch("bpt_deepflavour_2", pt4, "bpt_deepflavour_2/F")
 outTree.Branch("beta_deepflavour_2", eta4, "beta_deepflavour_2/F")
 outTree.Branch("bphi_deepflavour_2", phi4, "bphi_deepflavour_2/F")
 outTree.Branch("bm_deepflavour_2", m4, "bm_deepflavour_2/F")
+outTree.Branch("pt_atobb", pt5, "pt_atobb/F")
+outTree.Branch("eta_atobb", eta5, "eta_atobb/F")
+outTree.Branch("phi_atobb", phi5, "phi_atobb/F")
+outTree.Branch("m_atobb", m5, "m_atobb/F")
 
 tauMass = 1.77686
 bMass = 4.18
@@ -75,6 +83,7 @@ for count, event in enumerate(inTree):             # count is the index, e is th
     # Lists containing indices
     higgsList = []              # All Higgs
     aList = []                  # All pseudoscalars that are from a Higgs
+    abList = []                 # All pseudoscalars that are from a Higgs and decay to bb
     tauList = []                # All taus that are from a pseudoscalar from Higgs
     bList = []                  # All b quarks that are from a pseudoscalar from Higgs
 
@@ -98,6 +107,7 @@ for count, event in enumerate(inTree):             # count is the index, e is th
                 tauList.append(i)
             elif (motherList[i] == a and abs(pdgIdList[i]) == 5):
                 bList.append(i)
+                abList.append(a)
     
     # Fourth selection: 2 b quarks and 2 taus
     if (len(tauList) == 2 and len(bList) == 2):
@@ -120,7 +130,11 @@ for count, event in enumerate(inTree):             # count is the index, e is th
         eta4[0] = etaList[tauList[1]]
         phi4[0] = phiList[tauList[1]]
         m4[0] = bMass
-        
+        pt5[0] = ptList[abList[0]]
+        eta5[0] = etaList[abList[0]]
+        phi5[0] = phiList[abList[0]]
+        m5[0] = bMass
+
         outTree.Fill()
 
 print(str(passed) + "/" + str(nentries) + " events passed")

@@ -23,8 +23,8 @@
 void testKinFitFWLite()
 {
   // Read the file
-  // TFile *data = TFile::Open("/afs/cern.ch/work/s/skkwan/public/forKodai/SUSYGluGluToHToAA_AToBB_AToTauTau_M-45_Skim.root");
-  TFile *data = TFile::Open("selectedEvents.root");
+  // TFile *data = TFile::Open("/afs/cern.ch/work/s/skkwan/public/forKodai/SUSYGluGluToHToAA_AToBB_AToTauTau_M-45_Skim.root");    // Reco File
+  TFile *data = TFile::Open("selectedEvents.root");         // Gen file that has been processed by EventSelection.py
   TTree *tree = (TTree *) data->Get("mutau_tree");
 
   auto kinFitOutputMod = KinFitOutputModule(tree);
