@@ -58,7 +58,7 @@ Double_t KinFitOutputModule::ErrPhi(Float_t Et, Float_t Eta) {
   return InvPerr2;
 }
 
-Float_t KinFitOutputModule::CalculatePt(Float_t Et, Float_t eta, Float_t phi, Float_t m)
+Float_t KinFitOutputModule::calculatePt(Float_t Et, Float_t eta, Float_t phi, Float_t m)
 {
   Float_t E = Et * cosh(eta);
   Float_t p = pow(E * E - m * m, 0.5);
@@ -86,7 +86,7 @@ void KinFitOutputModule::print(TKinFitter *fitter)
   std::cout << "=============================================" << std ::endl;
 }
 
-std::vector<const TMatrixD*> KinFitOutputModule::fitEvent(std::vector<TLorentzVector> particleVectors)
+std::vector<TLorentzVector> KinFitOutputModule::fitEvent(std::vector<TLorentzVector> particleVectors)
 {
   auto mTauVec = particleVectors[0];
   auto hTauVec = particleVectors[1];
@@ -166,12 +166,22 @@ std::vector<const TMatrixD*> KinFitOutputModule::fitEvent(std::vector<TLorentzVe
   // std::cout << "Done." << std::endl;
   // print(fitter);
   
-  std::vector<const TMatrixD*> params = {};
+  std::vector<TLorentzVector> params = {};
   
-  for (auto particle : particles)
+  for (unsigned long int i; i < particles.size(); i++)
   {
-    params.push_back(particle->getParCurr());
-    //delete particle;
+    auto fittedValues = particles[i]->getParCurr();
+
+    TLorentzVector v;
+
+    Float_t et = fittedValues->GetMatrixArray()[0];
+    Float_t eta = fittedValues->GetMatrixArray()[1];
+    Float_t phi = fittedValues->GetMatrixArray()[2];
+    Float_t m = particleVectors[i].M();
+    Float_t pt = calculatePt(et, eta, phi, m);
+
+    v.SetPtEtaPhiM(pt, eta, phi, m);
+    params.push_back(v);
   }
   
   for (auto constraint : constraints)
@@ -184,21 +194,39 @@ std::vector<const TMatrixD*> KinFitOutputModule::fitEvent(std::vector<TLorentzVe
   return params;
 }
 
+void KinFitOutputModule::fillHistograms(std::vector<TLorentzVector> particleVectors, TH1F* hEt, TH1F* hEta, TH1F* hPhi, TH1F* hTauTauInvMass, TH1F* hBBInvMass)
+{
+  // particleVectors is organized as (m)tau (h)tau bjet (bjet)
+  for (auto vec : particleVectors)
+  {
+    hEt->Fill(vec.Et());
+    hEta->Fill(vec.Eta());
+    hPhi->Fill(vec.Phi());
+  }
+
+  hTauTauInvMass->Fill((particleVectors[0] + particleVectors[1]).M());    // Filling the tau tau invariant mass is unrelated to whether or not a second b-jet exists
+
+  if (particleVectors.size() == 4)
+  {
+    hBBInvMass->Fill((particleVectors[2] + particleVectors[3]).M());     // Only fill the BB invariant mass if there are TWO b-jets
+  }
+}
+
 void KinFitOutputModule::makeHistograms()
 {
   // Initialize the unfitted histograms
-  auto *hEt = new TH1F("Unfitted Transverse Energy", "Unfitted Transverse Energy", 50, 0, 200);
-  auto *hEta = new TH1F("Unfitted Eta", "Unfitted Eta", 50, -10, 10);
-  auto *hPhi = new TH1F("Unfitted Phi", "Unfitted Phi", 50, -4, 4);
-  auto *hTauTauInvMass = new TH1F("Unfitted Tau Tau Invariant Mass", "Unfitted Tau Tau Invariant Mass", 50, 0, 200);
-  auto *hBBInvMass = new TH1F("Unfitted BB Invariant Mass", "Unfitted BB Invariant Mass", 50, 0, 200);
+  auto *hEt = new TH1F("Unfitted Transverse Energy", "Unfitted Transverse Energy", 100, 0, 200);
+  auto *hEta = new TH1F("Unfitted Eta", "Unfitted Eta", 100, -10, 10);
+  auto *hPhi = new TH1F("Unfitted Phi", "Unfitted Phi", 100, -4, 4);
+  auto *hTauTauInvMass = new TH1F("Unfitted Tau Tau Invariant Mass", "Unfitted Tau Tau Invariant Mass", 100, 0, 200);
+  auto *hBBInvMass = new TH1F("Unfitted BB Invariant Mass", "Unfitted BB Invariant Mass", 100, 0, 200);
 
   // Initialize the fitted histograms
-  auto *hEtFit = new TH1F("Fitted Transverse Energy", "Fitted Transverse Energy", 50, 0, 200);
-  auto *hEtaFit = new TH1F("Fitted Eta", "Fitted Eta", 50, -10, 10);
-  auto *hPhiFit = new TH1F("Fitted Phi", "Fitted Phi", 50, -4, 4);
-  auto *hTauTauInvMassFit = new TH1F("Fitted Tau Tau Invariant Mass", "Fitted Tau Tau Invariant Mass", 50, 0, 200);
-  auto *hBBInvMassFit = new TH1F("Fitted BB Invariant Mass", "Fitted BB Invariant Mass", 50, 0, 200);
+  auto *hEtFit = new TH1F("Fitted Transverse Energy", "Fitted Transverse Energy", 100, 0, 200);
+  auto *hEtaFit = new TH1F("Fitted Eta", "Fitted Eta", 100, -10, 10);
+  auto *hPhiFit = new TH1F("Fitted Phi", "Fitted Phi", 100, -4, 4);
+  auto *hTauTauInvMassFit = new TH1F("Fitted Tau Tau Invariant Mass", "Fitted Tau Tau Invariant Mass", 100, 0, 200);
+  auto *hBBInvMassFit = new TH1F("Fitted BB Invariant Mass", "Fitted BB Invariant Mass", 100, 0, 200);
 
   // Set the addresses of the branches to elsewhere
   Float_t pt1, eta1, phi1, m1, pt2, eta2, phi2, m2, pt3, eta3, phi3, m3, pt4, eta4, phi4, m4;
@@ -238,46 +266,12 @@ void KinFitOutputModule::makeHistograms()
     {
       v4.SetPtEtaPhiM(pt4, eta4, phi4, m4);  // v4 contains the values of the second b-jet ONLY IF IT EXISTS
       particleVectors.push_back(v4);
-
-      hBBInvMass->Fill((v3 + v4).M());     // Only fill the BB invariant mass if there are TWO b-jets
     }
 
-    hTauTauInvMass->Fill((v1 + v2).M());  // Filling the tau tau invariant mass is unrelated to whether or not a second b-jet exists
+    fillHistograms(particleVectors, hEt, hEta, hPhi, hTauTauInvMass, hBBInvMass);
 
-    for (auto vec : particleVectors)       // Don't fill v4 into any histogram if it does not exist
-    {
-      hEt->Fill(vec.Et());
-      hEta->Fill(vec.Eta());
-      hPhi->Fill(vec.Phi());
-    }
-
-    auto fittedValues = fitEvent(particleVectors);
-    std::vector<TLorentzVector> fittedParticleVectors;
-    std::vector<Float_t> masses = {m1, m2, m3, m4};
-
-    for (unsigned long int i = 0; i < fittedValues.size(); i++)
-    {
-      TLorentzVector v;
-
-      Float_t et = fittedValues[i]->GetMatrixArray()[0];
-      Float_t eta = fittedValues[i]->GetMatrixArray()[1];
-      Float_t phi = fittedValues[i]->GetMatrixArray()[2];
-      Float_t m = masses[i];
-      Float_t pt = CalculatePt(et, eta, phi, m);
-
-      hEtFit->Fill(et);
-      hEtaFit->Fill(eta);
-      hPhiFit->Fill(phi);
-
-      v.SetPtEtaPhiM(pt, eta, phi, m);
-      fittedParticleVectors.push_back(v);
-    }
-
-    hTauTauInvMassFit->Fill((fittedParticleVectors[0] + fittedParticleVectors[1]).M());
-    if (fittedParticleVectors.size() >= 4)
-    {
-      hBBInvMassFit->Fill((fittedParticleVectors[2] + fittedParticleVectors[3]).M());
-    }
+    auto fittedParticleVectors = fitEvent(particleVectors);
+    fillHistograms(fittedParticleVectors, hEtFit, hEtaFit, hPhiFit, hTauTauInvMassFit, hBBInvMassFit);
   }
 
   histograms = {hEt, hEta, hPhi, hTauTauInvMass, hBBInvMass, hEtFit, hEtaFit, hPhiFit, hTauTauInvMassFit, hBBInvMassFit};

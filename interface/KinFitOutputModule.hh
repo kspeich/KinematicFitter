@@ -31,11 +31,13 @@ private:
   Double_t ErrEta(Float_t Et, Float_t Eta);
   Double_t ErrPhi(Float_t Et, Float_t Eta);
   
-  Float_t CalculatePt(Float_t Et, Float_t eta, Float_t phi, Float_t m);
+  Float_t calculatePt(Float_t Et, Float_t eta, Float_t phi, Float_t m);
 
   void print(TKinFitter *fitter);
 
-  std::vector<const TMatrixD*> fitEvent(std::vector<TLorentzVector> particleVectors);
+  std::vector<TLorentzVector> fitEvent(std::vector<TLorentzVector> particleVectors);
+
+  void fillHistograms(std::vector<TLorentzVector> particleVectors, TH1F* hEt, TH1F* hEta, TH1F* hPhi, TH1F* hTauTauInvMass, TH1F* hBBInvMass);
 
   void makeHistograms();
   void drawHistograms();
