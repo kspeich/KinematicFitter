@@ -20,23 +20,11 @@ void plotOutput()
   gStyle->SetOptStat(0);
   TFile* kinFitHistograms = TFile::Open("KinFitHistograms.root");
 
-  //overlayTwoPlots("H->aa->bbtautau Final State Transverse Energy (Gen)", "Transverse Energy (GeV)", "Number of Events", kinFitHistograms, kinFitHistograms, "Unfitted Transverse Energy;1", "Fitted Transverse Energy;1", "Original", "Kinematic Fit");
-  //overlayTwoPlots("H->aa->bbtautau Final State Pseudorapidity (Gen)", "Pseudorapidity", "Number of Events", kinFitHistograms, kinFitHistograms, "Unfitted Eta;1", "Fitted Eta;1", "Original", "Kinematic Fit");
-  //overlayTwoPlots("H->aa->bbtautau Final State Phi (Gen)", "Phi", "Number of Events", kinFitHistograms, kinFitHistograms, "Unfitted Phi;1", "Fitted Phi;1", "Original", "Kinematic Fit");
-  //overlayTwoPlots("H->aa->bbtautau TauTau Invariant Mass (Gen)", "Invariant Mass", "Number of Events", kinFitHistograms, kinFitHistograms, "Unfitted Tau Tau Invariant Mass;1", "Fitted Tau Tau Invariant Mass;1", "Original", "Kinematic Fit");
-  //overlayTwoPlots("H->aa->bbtautau BB Invariant Mass (Gen)", "Invariant Mass", "Number of Events", kinFitHistograms, kinFitHistograms, "Unfitted BB Invariant Mass;1", "Fitted BB Invariant Mass;1", "Original", "Kinematic Fit");
-  
-  overlayTwoPlots("H->aa->bbtautau b-quark vs Mother Pseudoscalar Transverse Momentum (Gen)", "Transverse Momentum (GeV)", "Number of Events", kinFitHistograms, kinFitHistograms, "Unfitted b-quark Transverse Momentum;1", "Unfitted b-quark Mother Pseudoscalar Transverse Momentum;1", "b", "pseudoscalar");
-  overlayTwoPlots("H->aa->bbtautau b-quark vs Mother Pseudoscalar Transverse Energy (Gen)", "Transverse Energy (GeV)", "Number of Events", kinFitHistograms, kinFitHistograms, "Unfitted b-quark Transverse Energy;1", "Unfitted b-quark Mother Pseudoscalar Transverse Energy;1", "b", "pseudoscalar");
-  overlayTwoPlots("H->aa->bbtautau b-quark vs Mother Pseudoscalar Pseudorapidity (Gen)", "Pseudorapidity", "Number of Events", kinFitHistograms, kinFitHistograms, "Unfitted b-quark Pseudorapidity;1", "Unfitted b-quark Mother Pseudoscalar Pseudorapidity;1", "b", "pseudoscalar");
-  overlayTwoPlots("H->aa->bbtautau b-quark vs Mother Pseudoscalar Phi (Gen)", "Phi", "Number of Events", kinFitHistograms, kinFitHistograms, "Unfitted b-quark Phi;1", "Unfitted b-quark Mother Pseudoscalar Phi;1", "b", "pseudoscalar");
-  
-  
-  //overlayTwoPlots("H->aa->bbtautau Unscaled BB Invariant Mass (Gen)", "Invariant Mass", "Number of Events", kinFitHistograms, kinFitHistograms, "Unfitted BB Invariant Mass;1", "Fitted BB Invariant Mass;1", "Original", "Kinematic Fit");
-
-
-  //displayPlot("Unfit TauTau Invariant Mass", "Invariant Mass", "Number of Events", kinFitHistograms, "Unfitted Tau Tau Invariant Mass;1");
-  //displayPlot("Unfit BB Invariant Mass", "Invariant Mass", "Number of Events", kinFitHistograms, "Unfitted BB Invariant Mass;1");
+  overlayTwoPlots("H->aa->bbtautau Final State Transverse Energy (Gen)", "Transverse Energy (GeV)", "Number of Events", kinFitHistograms, kinFitHistograms, "Unfitted Transverse Energy;1", "Fitted Transverse Energy;1", "Original", "Kinematic Fit");
+  overlayTwoPlots("H->aa->bbtautau Final State Pseudorapidity (Gen)", "Pseudorapidity", "Number of Events", kinFitHistograms, kinFitHistograms, "Unfitted Eta;1", "Fitted Eta;1", "Original", "Kinematic Fit");
+  overlayTwoPlots("H->aa->bbtautau Final State Phi (Gen)", "Phi", "Number of Events", kinFitHistograms, kinFitHistograms, "Unfitted Phi;1", "Fitted Phi;1", "Original", "Kinematic Fit");
+  overlayTwoPlots("H->aa->bbtautau TauTau Invariant Mass (Gen)", "Invariant Mass", "Number of Events", kinFitHistograms, kinFitHistograms, "Unfitted Tau Tau Invariant Mass;1", "Fitted Tau Tau Invariant Mass;1", "Original", "Kinematic Fit");
+  overlayTwoPlots("H->aa->bbtautau BB Invariant Mass (Gen)", "Invariant Mass", "Number of Events", kinFitHistograms, kinFitHistograms, "Unfitted BB Invariant Mass;1", "Fitted BB Invariant Mass;1", "Original", "Kinematic Fit");
 }
 
 void displayPlot(std::string canvasName, std::string xAxis, std::string yAxis, TFile* file1, std::string histName1)

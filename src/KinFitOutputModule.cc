@@ -228,18 +228,8 @@ void KinFitOutputModule::makeHistograms()
   auto *hTauTauInvMassFit = new TH1F("Fitted Tau Tau Invariant Mass", "Fitted Tau Tau Invariant Mass", 100, 0, 200);
   auto *hBBInvMassFit = new TH1F("Fitted BB Invariant Mass", "Fitted BB Invariant Mass", 100, 0, 200);
 
-  // Tests
-  auto *hBPt = new TH1F("Unfitted b-quark Transverse Momentum", "Unfitted b-quark Transverse Momentum", 100, 0, 200);
-  auto *hAPt = new TH1F("Unfitted b-quark Mother Pseudoscalar Transverse Momentum", "Unfitted b-quark Mother Pseudoscalar Transverse Momentum", 100, 0, 200);
-  auto *hBEt = new TH1F("Unfitted b-quark Transverse Energy", "Unfitted b-quark Transverse Energy", 100, 0, 200);
-  auto *hAEt = new TH1F("Unfitted b-quark Mother Pseudoscalar Transverse Energy", "Unfitted b-quark Mother Pseudoscalar Transverse Energy", 100, 0, 200);
-  auto *hBEta = new TH1F("Unfitted b-quark Pseudorapidity", "Unfitted b-quark Pseudorapidity", 100, -10, 10);
-  auto *hAEta = new TH1F("Unfitted b-quark Mother Pseudoscalar Pseudorapidity", "Unfitted b-quark Mother Pseudoscalar Pseudorapidity", 100, -10, 10);
-  auto *hBPhi = new TH1F("Unfitted b-quark Phi", "Unfitted b-quark Phi", 100, -4, 4);
-  auto *hAPhi = new TH1F("Unfitted b-quark Mother Pseudoscalar Phi", "Unfitted b-quark Mother Pseudoscalar Pseudorapidity", 100, -4, 4);
-
   // Set the addresses of the branches to elsewhere
-  Float_t pt1, eta1, phi1, m1, pt2, eta2, phi2, m2, pt3, eta3, phi3, m3, pt4, eta4, phi4, m4, pt5, eta5, phi5, m5;
+  Float_t pt1, eta1, phi1, m1, pt2, eta2, phi2, m2, pt3, eta3, phi3, m3, pt4, eta4, phi4, m4;
   tree->SetBranchAddress("pt_1", &pt1);
   tree->SetBranchAddress("eta_1", &eta1);
   tree->SetBranchAddress("phi_1", &phi1);
@@ -256,10 +246,6 @@ void KinFitOutputModule::makeHistograms()
   tree->SetBranchAddress("beta_deepflavour_2", &eta4);
   tree->SetBranchAddress("bphi_deepflavour_2", &phi4);
   tree->SetBranchAddress("bm_deepflavour_2", &m4);
-  tree->SetBranchAddress("pt_atobb", &pt5);
-  tree->SetBranchAddress("eta_atobb", &eta5);
-  tree->SetBranchAddress("phi_atobb", &phi5);
-  tree->SetBranchAddress("m_atobb", &m5);
 
   // Loop through each event, perform necessary calculations, and fill the histograms
   for(int i = 0; i < tree->GetEntries(); i++)   // GetEntries() returns the # of entries in the branch
@@ -280,26 +266,6 @@ void KinFitOutputModule::makeHistograms()
     {
       v4.SetPtEtaPhiM(pt4, eta4, phi4, m4);  // v4 contains the values of the second b-jet ONLY IF IT EXISTS
       particleVectors.push_back(v4);
-
-      motherA.SetPtEtaPhiM(pt5, eta5, phi5, m5);
-
-      TLorentzVector leadingB;
-      if (v3.E() >= v4.E())
-      {
-        leadingB = v3;
-      }
-      else
-      {
-        leadingB = v4;
-      }
-      hBPt->Fill(leadingB.Pt());
-      hBEt->Fill(leadingB.Et());
-      hBEta->Fill(leadingB.Eta());
-      hBPhi->Fill(leadingB.Phi());
-      hAPt->Fill(motherA.Pt());
-      hAEt->Fill(motherA.Et());
-      hAEta->Fill(motherA.Eta());
-      hAPhi->Fill(motherA.Phi());
     }
 
     fillHistograms(particleVectors, hEt, hEta, hPhi, hTauTauInvMass, hBBInvMass);
@@ -308,7 +274,7 @@ void KinFitOutputModule::makeHistograms()
     fillHistograms(fittedParticleVectors, hEtFit, hEtaFit, hPhiFit, hTauTauInvMassFit, hBBInvMassFit);
   }
 
-  histograms = {hEt, hEta, hPhi, hTauTauInvMass, hBBInvMass, hEtFit, hEtaFit, hPhiFit, hTauTauInvMassFit, hBBInvMassFit, hBPt, hAPt, hBEt, hAEt, hBEta, hAEta, hBPhi, hAPhi};
+  histograms = {hEt, hEta, hPhi, hTauTauInvMass, hBBInvMass, hEtFit, hEtaFit, hPhiFit, hTauTauInvMassFit, hBBInvMassFit};
 }
 
 void KinFitOutputModule::drawHistograms()
