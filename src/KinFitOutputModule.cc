@@ -10,6 +10,12 @@ void KinFitOutputModule::run()
   drawHistograms();
 }
 
+KinFitOutputModule::KinFitOutputModule(TTree* iTree) :
+  tree(iTree)
+{
+  runFitter();
+}
+
 Double_t KinFitOutputModule::ErrEt(Float_t Et, Float_t Eta) {
   Double_t InvPerr2, a, b, c;
   if(fabs(Eta) < 1.4){
@@ -194,6 +200,53 @@ std::vector<TLorentzVector> KinFitOutputModule::fitEvent(std::vector<TLorentzVec
   return params;
 }
 
+void KinFitOutputModule::runFitter()
+{
+  // Set the addresses of the branches to elsewhere
+  Float_t pt1, eta1, phi1, m1, pt2, eta2, phi2, m2, pt3, eta3, phi3, m3, pt4, eta4, phi4, m4;
+  tree->SetBranchAddress("pt_1", &pt1);
+  tree->SetBranchAddress("eta_1", &eta1);
+  tree->SetBranchAddress("phi_1", &phi1);
+  tree->SetBranchAddress("m_1", &m1);
+  tree->SetBranchAddress("pt_2", &pt2);
+  tree->SetBranchAddress("eta_2", &eta2);
+  tree->SetBranchAddress("phi_2", &phi2);
+  tree->SetBranchAddress("m_2", &m2);
+  tree->SetBranchAddress("bpt_deepflavour_1", &pt3);
+  tree->SetBranchAddress("beta_deepflavour_1", &eta3);
+  tree->SetBranchAddress("bphi_deepflavour_1", &phi3);
+  tree->SetBranchAddress("bm_deepflavour_1", &m3);
+  tree->SetBranchAddress("bpt_deepflavour_2", &pt4);
+  tree->SetBranchAddress("beta_deepflavour_2", &eta4);
+  tree->SetBranchAddress("bphi_deepflavour_2", &phi4);
+  tree->SetBranchAddress("bm_deepflavour_2", &m4);
+
+  // Loop through each event, perform necessary calculations, and fill the histograms
+  for(int i = 0; i < tree->GetEntries(); i++)   // GetEntries() returns the # of entries in the branch
+  {
+    // std::cout << "Event #: " << i << std::endl;
+
+    tree->GetEntry(i);
+
+    TLorentzVector v1, v2, v3, v4;
+
+    v1.SetPtEtaPhiM(pt1, eta1, phi1, m1);  // v1 contains the values of the (muonic) tau
+    v2.SetPtEtaPhiM(pt2, eta2, phi2, m2);  // v2 contains the values of the (hadronic) tau
+    v3.SetPtEtaPhiM(pt3, eta3, phi3, m3);  // v3 contains the values of the first b-jet
+
+    std::vector<TLorentzVector> particleVectors = {v1, v2, v3};
+
+    if (pt4 != -9999 && eta4 != -9999 && phi4 != -9999 && m4 != -9999)
+    {
+      v4.SetPtEtaPhiM(pt4, eta4, phi4, m4);  // v4 contains the values of the second b-jet ONLY IF IT EXISTS
+      particleVectors.push_back(v4);
+    }
+
+    unfittedEvents.push_back(particleVectors);
+    fittedEvents.push_back(fitEvent(particleVectors));
+  }
+}
+
 void KinFitOutputModule::fillHistograms(std::vector<TLorentzVector> particleVectors, TH1F* hEt, TH1F* hEta, TH1F* hPhi, TH1F* hTauTauInvMass, TH1F* hBBInvMass)
 {
   // particleVectors is organized as (m)tau (h)tau bjet (bjet)
@@ -228,52 +281,17 @@ void KinFitOutputModule::makeHistograms()
   auto *hTauTauInvMassFit = new TH1F("Fitted Tau Tau Invariant Mass", "Fitted Tau Tau Invariant Mass", 100, 0, 200);
   auto *hBBInvMassFit = new TH1F("Fitted BB Invariant Mass", "Fitted BB Invariant Mass", 100, 0, 200);
 
-  // Set the addresses of the branches to elsewhere
-  Float_t pt1, eta1, phi1, m1, pt2, eta2, phi2, m2, pt3, eta3, phi3, m3, pt4, eta4, phi4, m4;
-  tree->SetBranchAddress("pt_1", &pt1);
-  tree->SetBranchAddress("eta_1", &eta1);
-  tree->SetBranchAddress("phi_1", &phi1);
-  tree->SetBranchAddress("m_1", &m1);
-  tree->SetBranchAddress("pt_2", &pt2);
-  tree->SetBranchAddress("eta_2", &eta2);
-  tree->SetBranchAddress("phi_2", &phi2);
-  tree->SetBranchAddress("m_2", &m2);
-  tree->SetBranchAddress("bpt_deepflavour_1", &pt3);
-  tree->SetBranchAddress("beta_deepflavour_1", &eta3);
-  tree->SetBranchAddress("bphi_deepflavour_1", &phi3);
-  tree->SetBranchAddress("bm_deepflavour_1", &m3);
-  tree->SetBranchAddress("bpt_deepflavour_2", &pt4);
-  tree->SetBranchAddress("beta_deepflavour_2", &eta4);
-  tree->SetBranchAddress("bphi_deepflavour_2", &phi4);
-  tree->SetBranchAddress("bm_deepflavour_2", &m4);
-
-  // Loop through each event, perform necessary calculations, and fill the histograms
-  for(int i = 0; i < tree->GetEntries(); i++)   // GetEntries() returns the # of entries in the branch
+  // Fill the histograms
+  for (auto unfittedEvent : unfittedEvents)
   {
-    // std::cout << "Event #: " << i << std::endl;
-
-    tree->GetEntry(i);
-
-    TLorentzVector v1, v2, v3, v4, motherA, v1Fit, v2Fit, v3Fit, v4Fit;
-
-    v1.SetPtEtaPhiM(pt1, eta1, phi1, m1);  // v1 contains the values of the (muonic) tau
-    v2.SetPtEtaPhiM(pt2, eta2, phi2, m2);  // v2 contains the values of the (hadronic) tau
-    v3.SetPtEtaPhiM(pt3, eta3, phi3, m3);  // v3 contains the values of the first b-jet
-
-    std::vector<TLorentzVector> particleVectors = {v1, v2, v3};
-
-    if (pt4 != -9999 && eta4 != -9999 && phi4 != -9999 && m4 != -9999)
-    {
-      v4.SetPtEtaPhiM(pt4, eta4, phi4, m4);  // v4 contains the values of the second b-jet ONLY IF IT EXISTS
-      particleVectors.push_back(v4);
-    }
-
-    fillHistograms(particleVectors, hEt, hEta, hPhi, hTauTauInvMass, hBBInvMass);
-
-    auto fittedParticleVectors = fitEvent(particleVectors);
-    fillHistograms(fittedParticleVectors, hEtFit, hEtaFit, hPhiFit, hTauTauInvMassFit, hBBInvMassFit);
+    fillHistograms(unfittedEvent, hEt, hEta, hPhi, hTauTauInvMass, hBBInvMass);
+  }
+  for (auto fittedEvent : fittedEvents)
+  {
+    fillHistograms(fittedEvent, hEtFit, hEtaFit, hPhiFit, hTauTauInvMassFit, hBBInvMassFit);
   }
 
+  // Add
   histograms = {hEt, hEta, hPhi, hTauTauInvMass, hBBInvMass, hEtFit, hEtaFit, hPhiFit, hTauTauInvMassFit, hBBInvMassFit};
 }
 

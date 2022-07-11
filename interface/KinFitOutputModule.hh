@@ -18,13 +18,18 @@
 class KinFitOutputModule
 {
 public:
-  KinFitOutputModule(TTree* iTree) {tree = iTree;};
+  KinFitOutputModule(TTree* iTree);
   ~KinFitOutputModule() {};
   
+  std::vector<std::vector<TLorentzVector>> getUnfittedEvents() {return unfittedEvents;};
+  std::vector<std::vector<TLorentzVector>> getFittedEvents() {return fittedEvents;};
+
   void run();
 
 private:
   TTree* tree;
+  std::vector<std::vector<TLorentzVector>> unfittedEvents;
+  std::vector<std::vector<TLorentzVector>> fittedEvents;
   std::vector<TH1F*> histograms;
 
   Double_t ErrEt(Float_t Et, Float_t Eta);
@@ -36,7 +41,7 @@ private:
   void print(TKinFitter *fitter);
 
   std::vector<TLorentzVector> fitEvent(std::vector<TLorentzVector> particleVectors);
-
+  void runFitter();
   void fillHistograms(std::vector<TLorentzVector> particleVectors, TH1F* hEt, TH1F* hEta, TH1F* hPhi, TH1F* hTauTauInvMass, TH1F* hBBInvMass);
 
   void makeHistograms();
