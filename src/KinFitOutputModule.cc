@@ -228,22 +228,8 @@ void KinFitOutputModule::makeHistograms()
   auto *hTauTauInvMassFit = new TH1F("Fitted Tau Tau Invariant Mass", "Fitted Tau Tau Invariant Mass", 100, 0, 200);
   auto *hBBInvMassFit = new TH1F("Fitted BB Invariant Mass", "Fitted BB Invariant Mass", 100, 0, 200);
 
-  // Tests
-  auto *hLeadingBPt = new TH1F("Unfitted Leading b-quark Transverse Momentum", "Unfitted Leading b-quark Transverse Momentum", 100, 0, 200);
-  auto *hNextToLeadingBPt = new TH1F("Unfitted Next-To-Leading b-quark Transverse Momentum", "Unfitted Next-To-Leading b-quark Transverse Momentum", 100, 0, 200);
-  auto *hAPt = new TH1F("Unfitted b-quark Mother Pseudoscalar Transverse Momentum", "Unfitted b-quark Mother Pseudoscalar Transverse Momentum", 100, 0, 200);
-  auto *hLeadingBEt = new TH1F("Unfitted Leading b-quark Transverse Energy", "Unfitted Leading b-quark Transverse Energy", 100, 0, 200);
-  auto *hNextToLeadingBEt = new TH1F("Unfitted Next-To-Leading b-quark Transverse Energy", "Unfitted Next-To-Leading b-quark Transverse Energy", 100, 0, 200);
-  auto *hAEt = new TH1F("Unfitted b-quark Mother Pseudoscalar Transverse Energy", "Unfitted b-quark Mother Pseudoscalar Transverse Energy", 100, 0, 200);
-  auto *hLeadingBEta = new TH1F("Unfitted Leading b-quark Pseudorapidity", "Unfitted Leading b-quark Pseudorapidity", 100, -10, 10);
-  auto *hNextToLeadingBEta = new TH1F("Unfitted Next-To-Leading b-quark Pseudorapidity", "Unfitted Next-To-Leading b-quark Pseudorapidity", 100, -10, 10);
-  auto *hAEta = new TH1F("Unfitted b-quark Mother Pseudoscalar Pseudorapidity", "Unfitted b-quark Mother Pseudoscalar Pseudorapidity", 100, -10, 10);
-  auto *hLeadingBPhi = new TH1F("Unfitted Leading b-quark Phi", "Unfitted Leading b-quark Phi", 100, -4, 4);
-  auto *hNextToLeadingBPhi = new TH1F("Unfitted Next-To-Leading b-quark Phi", "Unfitted Next-To-Leading b-quark Phi", 100, -4, 4);
-  auto *hAPhi = new TH1F("Unfitted b-quark Mother Pseudoscalar Phi", "Unfitted b-quark Mother Pseudoscalar Pseudorapidity", 100, -4, 4);
-
   // Set the addresses of the branches to elsewhere
-  Float_t pt1, eta1, phi1, m1, pt2, eta2, phi2, m2, pt3, eta3, phi3, m3, pt4, eta4, phi4, m4, pt5, eta5, phi5, m5;
+  Float_t pt1, eta1, phi1, m1, pt2, eta2, phi2, m2, pt3, eta3, phi3, m3, pt4, eta4, phi4, m4;
   tree->SetBranchAddress("pt_1", &pt1);
   tree->SetBranchAddress("eta_1", &eta1);
   tree->SetBranchAddress("phi_1", &phi1);
@@ -260,10 +246,6 @@ void KinFitOutputModule::makeHistograms()
   tree->SetBranchAddress("beta_deepflavour_2", &eta4);
   tree->SetBranchAddress("bphi_deepflavour_2", &phi4);
   tree->SetBranchAddress("bm_deepflavour_2", &m4);
-  tree->SetBranchAddress("pt_atobb", &pt5);
-  tree->SetBranchAddress("eta_atobb", &eta5);
-  tree->SetBranchAddress("phi_atobb", &phi5);
-  tree->SetBranchAddress("m_atobb", &m5);
 
   // Loop through each event, perform necessary calculations, and fill the histograms
   for(int i = 0; i < tree->GetEntries(); i++)   // GetEntries() returns the # of entries in the branch
@@ -284,33 +266,6 @@ void KinFitOutputModule::makeHistograms()
     {
       v4.SetPtEtaPhiM(pt4, eta4, phi4, m4);  // v4 contains the values of the second b-jet ONLY IF IT EXISTS
       particleVectors.push_back(v4);
-
-      motherA.SetPtEtaPhiM(pt5, eta5, phi5, m5);
-
-      TLorentzVector leadingB, nextToLeadingB;
-      if (v3.Pt() >= v4.Pt())
-      {
-        leadingB = v3;
-        nextToLeadingB = v4;
-      }
-      else
-      {
-        leadingB = v4;
-        nextToLeadingB = v3;
-      }
-      hLeadingBPt->Fill(leadingB.Pt());
-      hNextToLeadingBPt->Fill(nextToLeadingB.Pt());
-      hLeadingBEt->Fill(leadingB.Et());
-      hNextToLeadingBEt->Fill(nextToLeadingB.Et());
-      hLeadingBEta->Fill(leadingB.Eta());
-      hNextToLeadingBEta->Fill(nextToLeadingB.Eta());
-      hLeadingBPhi->Fill(leadingB.Phi());
-      hNextToLeadingBPhi->Fill(nextToLeadingB.Phi());
-
-      hAPt->Fill(motherA.Pt());
-      hAEt->Fill(motherA.Et());
-      hAEta->Fill(motherA.Eta());
-      hAPhi->Fill(motherA.Phi());
     }
 
     fillHistograms(particleVectors, hEt, hEta, hPhi, hTauTauInvMass, hBBInvMass);
@@ -319,7 +274,7 @@ void KinFitOutputModule::makeHistograms()
     fillHistograms(fittedParticleVectors, hEtFit, hEtaFit, hPhiFit, hTauTauInvMassFit, hBBInvMassFit);
   }
 
-  histograms = {hEt, hEta, hPhi, hTauTauInvMass, hBBInvMass, hEtFit, hEtaFit, hPhiFit, hTauTauInvMassFit, hBBInvMassFit, hLeadingBPt, hNextToLeadingBPt, hAPt, hLeadingBEt, hNextToLeadingBEt, hAEt, hLeadingBEta, hNextToLeadingBEta, hAEta, hLeadingBPhi, hNextToLeadingBPhi, hAPhi};
+  histograms = {hEt, hEta, hPhi, hTauTauInvMass, hBBInvMass, hEtFit, hEtaFit, hPhiFit, hTauTauInvMassFit, hBBInvMassFit};
 }
 
 void KinFitOutputModule::drawHistograms()
