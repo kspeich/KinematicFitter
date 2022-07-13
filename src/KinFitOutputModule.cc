@@ -92,11 +92,17 @@ void KinFitOutputModule::print(TKinFitter *fitter)
   std::cout << "=============================================" << std ::endl;
 }
 
-std::vector<TLorentzVector> KinFitOutputModule::fitEvent(std::vector<TLorentzVector> particleVectors)
+Particles KinFitOutputModule::fitEvent(Particles event)
 {
-  auto mTauVec = particleVectors[0];
-  auto hTauVec = particleVectors[1];
-  auto bJet1Vec = particleVectors[2];
+  if (event.getNumParticles(15) != 2 || event.getNumParticles(5) > 2 || event.getNumParticles(5) < 1)
+  {
+    auto empty = Particles();
+    return empty;
+  }
+
+  auto mTauVec = event.getParticleVectors(15)[0];
+  auto hTauVec = event.getParticleVectors(15)[1];
+  auto bJet1Vec = event.getParticleVectors(5)[0];
 
   TMatrixD m1(3,3);
   TMatrixD m2(3,3);
@@ -127,9 +133,9 @@ std::vector<TLorentzVector> KinFitOutputModule::fitEvent(std::vector<TLorentzVec
   std::vector<TFitParticleEtEtaPhi*> particles = {mTau, hTau, bJet1};
   std::vector<TFitConstraintM*> constraints = {mCons1};
 
-  if (particleVectors.size() == 4)  // Do everything including the second b-jet
+  if (event.getNumParticles(5) == 2)  // Do everything including the second b-jet
   {
-    auto bJet2Vec = particleVectors[3];
+    auto bJet2Vec = event.getParticleVectors()[1];
     
     TMatrixD m4(3,3);
     m4.Zero();
@@ -172,22 +178,23 @@ std::vector<TLorentzVector> KinFitOutputModule::fitEvent(std::vector<TLorentzVec
   // std::cout << "Done." << std::endl;
   // print(fitter);
   
-  std::vector<TLorentzVector> params = {};
+  Particles params = {};
   
   for (unsigned long int i; i < particles.size(); i++)
   {
     auto fittedValues = particles[i]->getParCurr();
+    int pdgId = event.getPdgIds()[i];
 
     TLorentzVector v;
-
-    Float_t et = fittedValues->GetMatrixArray()[0];
-    Float_t eta = fittedValues->GetMatrixArray()[1];
-    Float_t phi = fittedValues->GetMatrixArray()[2];
-    Float_t m = particleVectors[i].M();
-    Float_t pt = calculatePt(et, eta, phi, m);
-
+    double et = fittedValues->GetMatrixArray()[0];
+    double eta = fittedValues->GetMatrixArray()[1];
+    double phi = fittedValues->GetMatrixArray()[2];
+    double m = event.getParticles()[i].M();
+    double pt = calculatePt(et, eta, phi, m);
     v.SetPtEtaPhiM(pt, eta, phi, m);
-    params.push_back(v);
+
+    auto fittedParticle = Particle(v, pdgId);
+    params.addParticle(fittedParticle);
   }
   
   for (auto constraint : constraints)
@@ -222,46 +229,62 @@ void KinFitOutputModule::runFitter()
   tree->SetBranchAddress("bm_deepflavour_2", &m4);
 
   // Loop through each event, perform necessary calculations, and fill the histograms
-  for(int i = 0; i < tree->GetEntries(); i++)   // GetEntries() returns the # of entries in the branch
+  int max = tree->GetEntries();
+  if (max > 10000)
   {
-    // std::cout << "Event #: " << i << std::endl;
-
+    max = 10000;
+  }
+  for(int i = 0; i < max; i++)   // GetEntries() returns the # of entries in the branch
+  {
+    if ((i % 1000) == 0)
+    {
+      std::cout << "Event #: " << i << " / " << tree->GetEntries() << std::endl;
+    }
+    
     tree->GetEntry(i);
 
     TLorentzVector v1, v2, v3, v4;
+    Particles particles;
 
     v1.SetPtEtaPhiM(pt1, eta1, phi1, m1);  // v1 contains the values of the (muonic) tau
     v2.SetPtEtaPhiM(pt2, eta2, phi2, m2);  // v2 contains the values of the (hadronic) tau
     v3.SetPtEtaPhiM(pt3, eta3, phi3, m3);  // v3 contains the values of the first b-jet
 
-    std::vector<TLorentzVector> particleVectors = {v1, v2, v3};
+    // The PDGIDs here represent that the particles are taus and b's, but do not indicate whether they are anti-taus or anti-b's
+    particles.addParticle(v1, 15);
+    particles.addParticle(v2, 15);
+    particles.addParticle(v3, 5);
 
     if (pt4 != -9999 && eta4 != -9999 && phi4 != -9999 && m4 != -9999)
     {
       v4.SetPtEtaPhiM(pt4, eta4, phi4, m4);  // v4 contains the values of the second b-jet ONLY IF IT EXISTS
-      particleVectors.push_back(v4);
+      particles.addParticle(v4, 5);
     }
 
-    unfittedEvents.push_back(particleVectors);
-    fittedEvents.push_back(fitEvent(particleVectors));
+    unfittedEvents.push_back(particles);
+    fittedEvents.push_back(fitEvent(particles));
   }
 }
 
-void KinFitOutputModule::fillHistograms(std::vector<TLorentzVector> particleVectors, TH1F* hEt, TH1F* hEta, TH1F* hPhi, TH1F* hTauTauInvMass, TH1F* hBBInvMass)
+void KinFitOutputModule::fillHistograms(Particles event, TH1F* hEt, TH1F* hEta, TH1F* hPhi, TH1F* hTauTauInvMass, TH1F* hBBInvMass)
 {
-  // particleVectors is organized as (m)tau (h)tau bjet (bjet)
-  for (auto vec : particleVectors)
+  if (event.getNumParticles(15) != 2 || event.getNumParticles(5) > 2 || event.getNumParticles(5) < 1)
   {
-    hEt->Fill(vec.Et());
-    hEta->Fill(vec.Eta());
-    hPhi->Fill(vec.Phi());
+    return;
   }
 
-  hTauTauInvMass->Fill((particleVectors[0] + particleVectors[1]).M());    // Filling the tau tau invariant mass is unrelated to whether or not a second b-jet exists
-
-  if (particleVectors.size() == 4)
+  for (auto particle : event.getParticles())
   {
-    hBBInvMass->Fill((particleVectors[2] + particleVectors[3]).M());     // Only fill the BB invariant mass if there are TWO b-jets
+    hEt->Fill(particle.Et());
+    hEta->Fill(particle.Eta());
+    hPhi->Fill(particle.Phi());
+  }
+
+  hTauTauInvMass->Fill(event.getInvariantMass(15));    // Filling the tau tau invariant mass is unrelated to whether or not a second b-jet exists
+
+  if (event.getNumParticles(5) == 2)
+  {
+    hBBInvMass->Fill(event.getInvariantMass(5));     // Only fill the BB invariant mass if there are TWO b-jets
   }
 }
 

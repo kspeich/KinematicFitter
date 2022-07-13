@@ -5,6 +5,8 @@
 #include "PhysicsTools/KinFitter/interface/TAbsFitParticle.h"
 #include "PhysicsTools/KinFitter/interface/TFitParticleEtEtaPhi.h"
 #include "PhysicsTools/KinFitter/interface/TKinFitter.h"
+#include "PhysicsTools/KinFitter/interface/Particle.hh"
+#include "PhysicsTools/KinFitter/interface/Particles.hh"
 
 #include "TLorentzVector.h"
 
@@ -21,15 +23,15 @@ public:
   KinFitOutputModule(TTree* iTree);
   ~KinFitOutputModule() {};
   
-  std::vector<std::vector<TLorentzVector>> getUnfittedEvents() {return unfittedEvents;};
-  std::vector<std::vector<TLorentzVector>> getFittedEvents() {return fittedEvents;};
+  std::vector<Particles> getUnfittedEvents() {return unfittedEvents;};
+  std::vector<Particles> getFittedEvents() {return fittedEvents;};
 
   void run();
 
 private:
   TTree* tree;
-  std::vector<std::vector<TLorentzVector>> unfittedEvents;
-  std::vector<std::vector<TLorentzVector>> fittedEvents;
+  std::vector<Particles> unfittedEvents;
+  std::vector<Particles> fittedEvents;
   std::vector<TH1F*> histograms;
 
   Double_t ErrEt(Float_t Et, Float_t Eta);
@@ -40,9 +42,9 @@ private:
 
   void print(TKinFitter *fitter);
 
-  std::vector<TLorentzVector> fitEvent(std::vector<TLorentzVector> particleVectors);
+  Particles fitEvent(Particles event);
   void runFitter();
-  void fillHistograms(std::vector<TLorentzVector> particleVectors, TH1F* hEt, TH1F* hEta, TH1F* hPhi, TH1F* hTauTauInvMass, TH1F* hBBInvMass);
+  void fillHistograms(Particles event, TH1F* hEt, TH1F* hEta, TH1F* hPhi, TH1F* hTauTauInvMass, TH1F* hBBInvMass);
 
   void makeHistograms();
   void drawHistograms();
