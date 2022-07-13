@@ -10,8 +10,9 @@ void KinFitOutputModule::run()
   drawHistograms();
 }
 
-KinFitOutputModule::KinFitOutputModule(TTree* iTree) :
-  tree(iTree)
+KinFitOutputModule::KinFitOutputModule(TTree* iTree, std::string iOutputFile) :
+  tree(iTree),
+  outputFile(iOutputFile)
 {
   runFitter();
 }
@@ -320,14 +321,14 @@ void KinFitOutputModule::makeHistograms()
 
 void KinFitOutputModule::drawHistograms()
 {
-  TFile* outputFile = new TFile("KinFitHistograms.root", "RECREATE");
+  TFile* outFile = new TFile(outputFile.c_str(), "RECREATE");
   
   for (auto histogram : histograms)
   {
     histogram->Write();
   }
 
-  std::cout << "Histograms written to KinFitHistograms.root\n";
-  outputFile->Close();
-  delete outputFile;
+  std::cout << "Histograms written to " << outputFile << '\n';
+  outFile->Close();
+  delete outFile;
 }

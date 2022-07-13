@@ -20,7 +20,7 @@
 class KinFitOutputModule
 {
 public:
-  KinFitOutputModule(TTree* iTree);
+  KinFitOutputModule(TTree* iTree, std::string iOutputFile);
   ~KinFitOutputModule() {};
   
   std::vector<Particles> getUnfittedEvents() {return unfittedEvents;};
@@ -33,6 +33,8 @@ private:
   std::vector<Particles> unfittedEvents;
   std::vector<Particles> fittedEvents;
   std::vector<TH1F*> histograms;
+
+  std::string outputFile;
 
   Double_t ErrEt(Float_t Et, Float_t Eta);
   Double_t ErrEta(Float_t Et, Float_t Eta);

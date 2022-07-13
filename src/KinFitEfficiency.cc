@@ -4,23 +4,21 @@
 #include <vector>
 #include <cmath>
 
-KinFitEfficiency::KinFitEfficiency(TTree* signal, double iSignalCrossSection, double iPeakMass, double iLowerWidth, double iUpperWidth, double iLuminosity) :
+KinFitEfficiency::KinFitEfficiency(KinFitOutputModule signal, double iSignalCrossSection, double iPeakMass, double iLowerWidth, double iUpperWidth, double iLuminosity) :
   signalCrossSection(iSignalCrossSection),
   peakMass(iPeakMass),
   lowerWidth(iLowerWidth),
   upperWidth(iUpperWidth),
   luminosity(iLuminosity)
 {
-  auto signalKinFitOutputMod = KinFitOutputModule(signal);
-  signalEvents = signalKinFitOutputMod.getUnfittedEvents();
-  fittedSignalEvents = signalKinFitOutputMod.getFittedEvents();
+  signalEvents = signal.getUnfittedEvents();
+  fittedSignalEvents = signal.getFittedEvents();
 }
 
-void KinFitEfficiency::addBackground(TTree* background, double crossSection)
+void KinFitEfficiency::addBackground(KinFitOutputModule background, double crossSection)
 {
-  auto backgroundKinFitOutputMod = KinFitOutputModule(background);
-  backgroundEvents.push_back(backgroundKinFitOutputMod.getUnfittedEvents());
-  fittedBackgroundEvents.push_back(backgroundKinFitOutputMod.getFittedEvents());
+  backgroundEvents.push_back(background.getUnfittedEvents());
+  fittedBackgroundEvents.push_back(background.getFittedEvents());
   backgroundCrossSections.push_back(crossSection);
 }
 

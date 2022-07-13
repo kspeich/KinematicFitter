@@ -21,8 +21,8 @@
 class KinFitEfficiency
 {
 public:
-  KinFitEfficiency(TTree* signal, double iSignalCrossSection, double iPeakMass, double iLowerWidth, double iUpperWidth, double iLuminosity);
-  void addBackground(TTree* background, double crossSection);
+  KinFitEfficiency(KinFitOutputModule signal, double iSignalCrossSection, double iPeakMass, double iLowerWidth, double iUpperWidth, double iLuminosity);
+  void addBackground(KinFitOutputModule background, double crossSection);
 
   void run();
 

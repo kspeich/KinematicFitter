@@ -41,17 +41,19 @@ void testKinFitFWLite()
   double ttSemiLeptonicCrossSection = 365.35;
   
   std::cout << "Creating KinFit Histograms...\n";
-  auto kinFitOutputMod = KinFitOutputModule(tree);
+  auto kinFitOutputMod = KinFitOutputModule(tree, "SignalKinFitHistograms.root");
   kinFitOutputMod.run();
+  auto dyJetsKinFitOutputMod = KinFitOutputModule(dyJetsTree, "DYJetsKinFitHistograms.root");
+  dyJetsKinFitOutputMod.run();
+  auto ttLeptonicKinFitOutputMod = KinFitOutputModule(ttLeptonicTree, "TTLeptonicKinFitHistograms.root");
+  ttLeptonicKinFitOutputMod.run();
+  auto ttSemiLeptonicKinFitOutputMod = KinFitOutputModule(ttSemiLeptonicTree, "TTSemiLeptonicKinFitHistograms.root");
+  ttSemiLeptonicKinFitOutputMod.run();
 
-  /*std::cout << "Calculating S/B and S/sqrt(S+B) ratios...\n";
-  auto kinFitEfficiency = KinFitEfficiency(tree, signalCrossSection, 45., 5., 5., 59.74);
-  std::cout << "Adding DYJets Background\n";
-  kinFitEfficiency.addBackground(dyJetsTree, dyJetsCrossSection);
-  std::cout << "Adding TTLeptonic Background\n";
-  kinFitEfficiency.addBackground(ttLeptonicTree, ttLeptonicCrossSection);
-  std::cout << "Adding TTSemiLeptonic Background\n";
-  kinFitEfficiency.addBackground(ttSemiLeptonicTree, ttSemiLeptonicCrossSection);
-  std::cout << "Backgrounds added\n";
-  kinFitEfficiency.run();*/
+  std::cout << "Calculating S/B and S/sqrt(S+B) ratios...\n";
+  auto kinFitEfficiency = KinFitEfficiency(kinFitOutputMod, signalCrossSection, 45., 5., 5., 59.74);
+  kinFitEfficiency.addBackground(dyJetsKinFitOutputMod, dyJetsCrossSection);
+  kinFitEfficiency.addBackground(ttLeptonicKinFitOutputMod, ttLeptonicCrossSection);
+  kinFitEfficiency.addBackground(ttSemiLeptonicKinFitOutputMod, ttSemiLeptonicCrossSection);
+  kinFitEfficiency.run();
 }
