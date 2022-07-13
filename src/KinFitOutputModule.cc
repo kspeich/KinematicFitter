@@ -230,12 +230,7 @@ void KinFitOutputModule::runFitter()
   tree->SetBranchAddress("bm_deepflavour_2", &m4);
 
   // Loop through each event, perform necessary calculations, and fill the histograms
-  int max = tree->GetEntries();
-  if (max > 10000)
-  {
-    max = 10000;
-  }
-  for(int i = 0; i < max; i++)   // GetEntries() returns the # of entries in the branch
+  for(int i = 0; i < tree->GetEntries(); i++)   // GetEntries() returns the # of entries in the branch
   {
     if ((i % 1000) == 0)
     {

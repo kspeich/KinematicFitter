@@ -43,7 +43,6 @@ void plotOutput()
   overlayPlots("TT Leptonic BB Invariant Mass (Gen)", "Invariant Mass (GeV)", "Number of Events", {ttLeptonicKinFitHistograms, ttLeptonicKinFitHistograms}, {"Unfitted BB Invariant Mass;1", "Fitted BB Invariant Mass;1"}, {"Original", "Kinematic Fit"}, {kBlue, kRed});
   overlayPlots("TT Semi-Leptonic Tau Tau Invariant Mass (Gen)", "Invariant Mass (GeV)", "Number of Events", {ttSemiLeptonicKinFitHistograms, ttSemiLeptonicKinFitHistograms}, {"Unfitted Tau Tau Invariant Mass;1", "Fitted Tau Tau Invariant Mass;1"}, {"Original", "Kinematic Fit"}, {kBlue, kRed});
   overlayPlots("TT Semi-Leptonic BB Invariant Mass (Gen)", "Invariant Mass (GeV)", "Number of Events", {ttSemiLeptonicKinFitHistograms, ttSemiLeptonicKinFitHistograms}, {"Unfitted BB Invariant Mass;1", "Fitted BB Invariant Mass;1"}, {"Original", "Kinematic Fit"}, {kBlue, kRed});
-
 }
 
 void overlayPlots(std::string canvasName, std::string xAxis, std::string yAxis, std::vector<TFile*> files, std::vector<std::string> histNames, std::vector<std::string> legends, std::vector<Color_t> colors)
