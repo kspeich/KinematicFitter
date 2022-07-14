@@ -105,7 +105,7 @@ for count, event in enumerate(inTree):             # count is the index, e is th
     # Third selection: pseudoscalars decay into b quarks and taus, with the status flag isFirstCopy (12) and fromHardProcess(8)
     for a in aList:
         for i in range(nGenPart):
-            if (len(statusFlagsList[i]) == isFirstCopy + 2):
+            if (len(statusFlagsList[i]) >= isFirstCopy + 2):
                 if (statusFlagsList[i][-1 * (isFirstCopy + 1)] == "1" and statusFlagsList[i][-1 * (fromHardProcess + 1)] == "1"):
                     if (motherList[i] == a and abs(pdgIdList[i]) == 15):
                         tauList.append(i)
