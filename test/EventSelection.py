@@ -50,10 +50,6 @@ outTree.Branch("bpt_deepflavour_2", pt4, "bpt_deepflavour_2/F")
 outTree.Branch("beta_deepflavour_2", eta4, "beta_deepflavour_2/F")
 outTree.Branch("bphi_deepflavour_2", phi4, "bphi_deepflavour_2/F")
 outTree.Branch("bm_deepflavour_2", m4, "bm_deepflavour_2/F")
-outTree.Branch("pt_atobb", pt5, "pt_atobb/F")
-outTree.Branch("eta_atobb", eta5, "eta_atobb/F")
-outTree.Branch("phi_atobb", phi5, "phi_atobb/F")
-outTree.Branch("m_atobb", m5, "m_atobb/F")
 
 tauMass = 1.77686
 bMass = 4.18
@@ -72,6 +68,7 @@ for count, event in enumerate(inTree):             # count is the index, e is th
     etaList = []
     phiList = []
     massList = []
+    statusFlagsList = []
 
     for i in range(nGenPart):
         pdgIdList.append(event.GenPart_pdgId[i])
@@ -80,13 +77,17 @@ for count, event in enumerate(inTree):             # count is the index, e is th
         etaList.append(event.GenPart_eta[i])
         phiList.append(event.GenPart_phi[i])
         massList.append(event.GenPart_mass[i])
+        statusFlagsList.append(bin(event.GenPart_statusFlags[i]))           # Convert the integer to a binary string
     
     # Lists containing indices
     higgsList = []              # All Higgs
     aList = []                  # All pseudoscalars that are from a Higgs
-    abList = []                 # All pseudoscalars that are from a Higgs and decay to bb
     tauList = []                # All taus that are from a pseudoscalar from Higgs
     bList = []                  # All b quarks that are from a pseudoscalar from Higgs
+
+    # Status Flags
+    isFirstCopy = 12
+    fromHardProcess = 8
 
     # Event selection
 
@@ -101,14 +102,15 @@ for count, event in enumerate(inTree):             # count is the index, e is th
             if (motherList[i] == higgs and pdgIdList[i] == 36):
                 aList.append(i)
 
-    # Third selection: pseudoscalars decay into b quarks and taus
+    # Third selection: pseudoscalars decay into b quarks and taus, with the status flag isFirstCopy (12) and fromHardProcess(8)
     for a in aList:
         for i in range(nGenPart):
-            if (motherList[i] == a and abs(pdgIdList[i]) == 15):
-                tauList.append(i)
-            elif (motherList[i] == a and abs(pdgIdList[i]) == 5):
-                bList.append(i)
-                abList.append(a)
+            if (len(statusFlagsList[i]) == isFirstCopy + 2):
+                if (statusFlagsList[i][-1 * (isFirstCopy + 1)] == "1" and statusFlagsList[i][-1 * (fromHardProcess + 1)] == "1"):
+                    if (motherList[i] == a and abs(pdgIdList[i]) == 15):
+                        tauList.append(i)
+                    elif (motherList[i] == a and abs(pdgIdList[i]) == 5):
+                        bList.append(i)
     
     # Fourth selection: 2 b quarks and 2 taus
     if (len(tauList) == 2 and len(bList) == 2):
@@ -131,10 +133,6 @@ for count, event in enumerate(inTree):             # count is the index, e is th
         eta4[0] = etaList[tauList[1]]
         phi4[0] = phiList[tauList[1]]
         m4[0] = bMass
-        pt5[0] = ptList[abList[0]]
-        eta5[0] = etaList[abList[0]]
-        phi5[0] = phiList[abList[0]]
-        m5[0] = aMass
 
         outTree.Fill()
 
