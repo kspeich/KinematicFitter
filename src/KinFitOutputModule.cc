@@ -151,6 +151,10 @@ Particles KinFitOutputModule::fitEvent(Particles event)
     TFitConstraintM *mCons2 = new TFitConstraintM( "AMassConstraint2", "AMass-Constraint2", 0, 0 , 45.);
     mCons2->addParticles1( bJet1, bJet2 );
 
+    // All four particles must make a Higgs
+    TFitConstraintM *mCons3 = new TFitConstraintM( "HiggsMassConstraint", "HiggsMass-Constraint", 0, 0, 125.);
+    mCons3->addParticles1( mTau, hTau, bJet1, bJet2 );
+
     particles.push_back(bJet2);
     constraints.push_back(mCons2);
   }
@@ -230,7 +234,12 @@ void KinFitOutputModule::runFitter()
   tree->SetBranchAddress("bm_deepflavour_2", &m4);
 
   // Loop through each event, perform necessary calculations, and fill the histograms
-  for(int i = 0; i < tree->GetEntries(); i++)   // GetEntries() returns the # of entries in the branch
+  int max = tree->GetEntries();
+  /*if (max > 10000)
+  {
+    max = 10000;
+  }*/
+  for(int i = 0; i < max; i++)   // GetEntries() returns the # of entries in the branch
   {
     if ((i % 1000) == 0)
     {
