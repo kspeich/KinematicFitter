@@ -51,9 +51,10 @@ void testKinFitFWLite()
   ttSemiLeptonicKinFitOutputMod.run();
 
   std::cout << "Calculating S/B and S/sqrt(S+B) ratios...\n";
-  auto kinFitEfficiency = KinFitEfficiency(kinFitOutputMod, signalCrossSection, 45., 5., 5., 59.74);
-  kinFitEfficiency.addBackground(dyJetsKinFitOutputMod, dyJetsCrossSection);
-  kinFitEfficiency.addBackground(ttLeptonicKinFitOutputMod, ttLeptonicCrossSection);
-  kinFitEfficiency.addBackground(ttSemiLeptonicKinFitOutputMod, ttSemiLeptonicCrossSection);
-  kinFitEfficiency.run();
+  auto kinFitEfficiency = KinFitEfficiency(kinFitOutputMod, signalCrossSection, 59.74);
+  kinFitEfficiency.addBackground(dyJetsKinFitOutputMod, dyJetsCrossSection, 59.74);
+  kinFitEfficiency.addBackground(ttLeptonicKinFitOutputMod, ttLeptonicCrossSection, 59.74);
+  kinFitEfficiency.addBackground(ttSemiLeptonicKinFitOutputMod, ttSemiLeptonicCrossSection, 59.74);
+  kinFitEfficiency.run(45., 5., 5.);
+  kinFitEfficiency.run(45., 3., 3.);
 }

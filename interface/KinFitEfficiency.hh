@@ -21,27 +21,24 @@
 class KinFitEfficiency
 {
 public:
-  KinFitEfficiency(KinFitOutputModule signal, double iSignalCrossSection, double iPeakMass, double iLowerWidth, double iUpperWidth, double iLuminosity);
-  void addBackground(KinFitOutputModule background, double crossSection);
+  KinFitEfficiency(KinFitOutputModule signal, double iSignalCrossSection, double iSignalLuminosity);
+  void addBackground(KinFitOutputModule background, double crossSection, double luminosity);
 
-  void run();
+  void run(double peakMass, double lowerWidth, double upperWidth);
 
 private:
   std::vector<Particles> signalEvents;
   std::vector<Particles> fittedSignalEvents;
   double signalCrossSection;
+  double signalLuminosity;
   std::vector<std::vector<Particles>> backgroundEvents;
   std::vector<std::vector<Particles>> fittedBackgroundEvents;
   std::vector<double> backgroundCrossSections;
+  std::vector<double> backgroundLuminosities;
 
-  double peakMass;
-  double lowerWidth;
-  double upperWidth;
 
-  double luminosity; 
-
-  void calculateRatio(bool fit);
-  std::pair<double, double> countPassedEvents(std::vector<Particles> events, double weight);
+  void calculateRatio(bool fit, double peakMass, double lowerWidth, double upperWidth);
+  std::pair<double, double> countPassedEvents(std::vector<Particles> events, double weight, double peakMass, double lowerWidth, double upperWidth);
 };
 
 #endif

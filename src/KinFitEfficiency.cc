@@ -4,34 +4,32 @@
 #include <vector>
 #include <cmath>
 
-KinFitEfficiency::KinFitEfficiency(KinFitOutputModule signal, double iSignalCrossSection, double iPeakMass, double iLowerWidth, double iUpperWidth, double iLuminosity) :
+KinFitEfficiency::KinFitEfficiency(KinFitOutputModule signal, double iSignalCrossSection, double iSignalLuminosity) :
   signalCrossSection(iSignalCrossSection),
-  peakMass(iPeakMass),
-  lowerWidth(iLowerWidth),
-  upperWidth(iUpperWidth),
-  luminosity(iLuminosity)
+  signalLuminosity(iSignalLuminosity)
 {
   signalEvents = signal.getUnfittedEvents();
   fittedSignalEvents = signal.getFittedEvents();
 }
 
-void KinFitEfficiency::addBackground(KinFitOutputModule background, double crossSection)
+void KinFitEfficiency::addBackground(KinFitOutputModule background, double crossSection, double luminosity)
 {
   backgroundEvents.push_back(background.getUnfittedEvents());
   fittedBackgroundEvents.push_back(background.getFittedEvents());
   backgroundCrossSections.push_back(crossSection);
+  backgroundLuminosities.push_back(luminosity);
 }
 
-void KinFitEfficiency::run()
+void KinFitEfficiency::run(double peakMass, double lowerWidth, double upperWidth)
 {
   std::cout << "\nPseudoscalar Mass: " << peakMass << " GeV; Reconstruction from " << peakMass - lowerWidth << " GeV to " << peakMass + upperWidth << " GeV\n";
   std::cout << "\nBefore kinematic fit: \n";
-  calculateRatio(false);
+  calculateRatio(false, peakMass, lowerWidth, upperWidth);
   std::cout << "\nAfter kinematic fit: \n";
-  calculateRatio(true);
+  calculateRatio(true, peakMass, lowerWidth, upperWidth);
 }
 
-void KinFitEfficiency::calculateRatio(bool fit)
+void KinFitEfficiency::calculateRatio(bool fit, double peakMass, double lowerWidth, double upperWidth)
 {
   double signalTauTau = 0;
   double signalBB = 0;
@@ -48,16 +46,16 @@ void KinFitEfficiency::calculateRatio(bool fit)
     backgrounds = fittedBackgroundEvents;
   }
 
-  auto signalWeight = signalCrossSection * luminosity / signal.size();
-  auto signalCounts = countPassedEvents(signal, signalWeight);
+  auto signalWeight = signalCrossSection * signalLuminosity / signal.size();
+  auto signalCounts = countPassedEvents(signal, signalWeight, peakMass, lowerWidth, upperWidth);
   
   signalTauTau += signalCounts.first;
   signalBB += signalCounts.second;
 
   for (unsigned long int i = 0; i < backgrounds.size(); i++)
   {
-    auto backgroundWeight = backgroundCrossSections[i] * luminosity / backgrounds[i].size();
-    auto backgroundCounts = countPassedEvents(backgrounds[i], backgroundWeight);
+    auto backgroundWeight = backgroundCrossSections[i] * backgroundLuminosities[i] / backgrounds[i].size();
+    auto backgroundCounts = countPassedEvents(backgrounds[i], backgroundWeight, peakMass, lowerWidth, upperWidth);
 
     backgroundTauTau += backgroundCounts.first;
     backgroundBB += backgroundCounts.second;
@@ -72,7 +70,7 @@ void KinFitEfficiency::calculateRatio(bool fit)
   std::cout << "BB S/sqrt(S+B) ratio: " << (signalBB / pow(signalBB + backgroundBB, 0.5)) << std::endl;
 }
 
-std::pair<double, double> KinFitEfficiency::countPassedEvents(std::vector<Particles> events, double weight)
+std::pair<double, double> KinFitEfficiency::countPassedEvents(std::vector<Particles> events, double weight, double peakMass, double lowerWidth, double upperWidth)
 {
   double tautauCount = 0;
   double bbCount = 0;

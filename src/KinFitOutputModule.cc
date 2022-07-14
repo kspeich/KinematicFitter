@@ -235,9 +235,9 @@ void KinFitOutputModule::runFitter()
 
   // Loop through each event, perform necessary calculations, and fill the histograms
   int max = tree->GetEntries();
-  if (max > 10000)
+  if (max > 100000)
   {
-    max = 10000;
+    max = 100000;
   }
   for(int i = 0; i < max; i++)   // GetEntries() returns the # of entries in the branch
   {
