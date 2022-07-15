@@ -11,12 +11,12 @@ outDYJets = "dyJetsSelectedEvents.root"
 outTTLeptonic = "ttLeptonicSelectedEvents.root"
 outTTSemiLeptonic = "ttSemiLeptonicSelectedEvents.root"
 
-inFile = TFile.Open(inSignal)
+inFile = TFile.Open(inDYJets)
 inTree = inFile.Get("Events")           # Get the Events TTree
 nentries = inTree.GetEntries()          # Number of entries in the Events TTree
 
 # Create the output file and tree
-outFile = TFile(outSignal, 'recreate')
+outFile = TFile(outDYJets, 'recreate')
 outTree = TTree("mutau_tree", "mutau_tree")
 
 # Create arrays
@@ -37,10 +37,6 @@ pt4 = array('f', [0])
 eta4 = array('f', [0])
 phi4 = array('f', [0])
 m4 = array('f', [0])
-pt5 = array('f', [0])
-eta5 = array('f', [0])
-phi5 = array('f', [0])
-m5 = array('f', [0])
 
 # Create TBranches with the arrays
 outTree.Branch("pt_1", pt1, "pt_1/F")
@@ -67,7 +63,8 @@ aMass = 45.
 passed = 0
 
 for count, event in enumerate(inTree):             # count is the index, e is the event data
-    # print("Event " + str(count) + " out of " + str(nentries))
+    if (count % 1000 == 0):
+        print("Event " + str(count) + " / " + str(nentries))
 
     nGenPart = event.nGenPart
 
