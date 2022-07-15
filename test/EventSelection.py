@@ -1,13 +1,22 @@
 from ROOT import TFile, TTree, TH1D, TLorentzVector
 from array import array
 
-inFile = TFile.Open("SUSYGluGluToHToAA_AToBB_AToTauTau_M-45_FilterTauTauTrigger_TuneCP5_13TeV_madgraph_pythia8.root")
+inSignal = "SUSYGluGluToHToAA_AToBB_AToTauTau_M-45_FilterTauTauTrigger_TuneCP5_13TeV_madgraph_pythia8.root"
+inDYJets = "DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8.root"
+inTTLeptonic = "TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8.root"
+inTTSemiLeptonic = "TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8.root"
+
+outSignal = "signalSelectedEvents.root"
+outDYJets = "dyJetsSelectedEvents.root"
+outTTLeptonic = "ttLeptonicSelectedEvents.root"
+outTTSemiLeptonic = "ttSemiLeptonicSelectedEvents.root"
+
+inFile = TFile.Open(inSignal)
 inTree = inFile.Get("Events")           # Get the Events TTree
 nentries = inTree.GetEntries()          # Number of entries in the Events TTree
-# print("nentries={0:d}".format(nentries))
 
 # Create the output file and tree
-outFile = TFile("selectedEvents.root", 'recreate')
+outFile = TFile(outSignal, 'recreate')
 outTree = TTree("mutau_tree", "mutau_tree")
 
 # Create arrays
