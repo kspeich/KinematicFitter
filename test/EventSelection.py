@@ -11,12 +11,12 @@ outDYJets = "dyJetsSelectedEvents.root"
 outTTLeptonic = "ttLeptonicSelectedEvents.root"
 outTTSemiLeptonic = "ttSemiLeptonicSelectedEvents.root"
 
-inFile = TFile.Open(inDYJets)
+inFile = TFile.Open(inSignal)
 inTree = inFile.Get("Events")           # Get the Events TTree
 nentries = inTree.GetEntries()          # Number of entries in the Events TTree
 
 # Create the output file and tree
-outFile = TFile(outDYJets, 'recreate')
+outFile = TFile(outSignal, 'recreate')
 outTree = TTree("mutau_tree", "mutau_tree")
 
 # Create arrays
@@ -135,9 +135,9 @@ for count, event in enumerate(inTree):             # count is the index, e is th
         eta3[0] = etaList[bList[0]]
         phi3[0] = phiList[bList[0]]
         m3[0] = bMass
-        pt4[0] = ptList[tauList[1]]
-        eta4[0] = etaList[tauList[1]]
-        phi4[0] = phiList[tauList[1]]
+        pt4[0] = ptList[bList[1]]
+        eta4[0] = etaList[bList[1]]
+        phi4[0] = phiList[bList[1]]
         m4[0] = bMass
 
         outTree.Fill()
