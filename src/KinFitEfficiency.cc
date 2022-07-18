@@ -64,6 +64,8 @@ void KinFitEfficiency::calculateRatio(bool fit, double peakMass, double lowerWid
   // std::cout << "Tau Tau Signal: " << signalTauTau << "\t\tBB Signal: " << signalBB << std::endl;
   // std::cout << "Tau Tau Background: " << backgroundTauTau << "\t\tBB Background: " << backgroundBB << std::endl;
 
+  std::cout << "Tau Tau Signal Count: " << signalTauTau << "\t BB Signal Count: " << signalBB << std::endl;
+  std::cout << "Tau Tau Background Count: " << backgroundTauTau << "\t BB Background Count: " << backgroundBB << std::endl;
   std::cout << "Tau Tau S/B ratio: " << (signalTauTau / backgroundTauTau) << std::endl;
   std::cout << "BB S/B ratio: " << (signalBB / backgroundBB) << std::endl;
   std::cout << "Tau Tau S/sqrt(S+B) ratio: " << (signalTauTau / pow(signalTauTau + backgroundTauTau, 0.5)) << std::endl;

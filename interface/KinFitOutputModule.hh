@@ -36,9 +36,9 @@ private:
 
   std::string outputFile;
 
-  Double_t ErrEt(Float_t Et, Float_t Eta);
-  Double_t ErrEta(Float_t Et, Float_t Eta);
-  Double_t ErrPhi(Float_t Et, Float_t Eta);
+  Double_t ErrEt(TLorentzVector particleVec);
+  Double_t ErrEta(TLorentzVector particleVec);
+  Double_t ErrPhi(TLorentzVector particleVec);
   
   Float_t calculatePt(Float_t Et, Float_t eta, Float_t phi, Float_t m);
 

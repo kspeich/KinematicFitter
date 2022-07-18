@@ -17,9 +17,9 @@ KinFitOutputModule::KinFitOutputModule(TTree* iTree, std::string iOutputFile) :
   runFitter();
 }
 
-Double_t KinFitOutputModule::ErrEt(Float_t Et, Float_t Eta) {
-  Double_t InvPerr2, a, b, c;
-  if(fabs(Eta) < 1.4){
+Double_t KinFitOutputModule::ErrEt(TLorentzVector particleVec) {
+  /*Double_t InvPerr2, a, b, c;
+  if(fabs(particleVec.Eta()) < 1.4){
     a = 5.6;
     b = 1.25;
     c = 0.033;
@@ -29,13 +29,16 @@ Double_t KinFitOutputModule::ErrEt(Float_t Et, Float_t Eta) {
     b = 0.89;
     c = 0.043;
   }
-  InvPerr2 = (a * a) + (b * b) * Et + (c * c) * Et * Et;
-  return InvPerr2;
+  InvPerr2 = (a * a) + (b * b) * particleVec.Et() + (c * c) * particleVec.Et() * particleVec.Et();
+  std::cout << "Error on Et: " << InvPerr2/particleVec.Et() << std::endl;
+  return InvPerr2;*/
+
+  return 0.05 * particleVec.Et();
 }
 
-Double_t KinFitOutputModule::ErrEta(Float_t Et, Float_t Eta) {
-  Double_t InvPerr2, a, b, c;
-  if(fabs(Eta) < 1.4){
+Double_t KinFitOutputModule::ErrEta(TLorentzVector particleVec) {
+  /*Double_t InvPerr2, a, b, c;
+  if(fabs(particleVec.Eta()) < 1.4){
     a = 1.215;
     b = 0.037;
     c = 7.941 * 0.0001;
@@ -45,13 +48,16 @@ Double_t KinFitOutputModule::ErrEta(Float_t Et, Float_t Eta) {
     b = 0.034;
     c = 3.56 * 0.0001;
   }
-  InvPerr2 = a/(Et * Et) + b/Et + c;
-  return InvPerr2;
+  InvPerr2 = a/(particleVec.Et() * particleVec.Et()) + b/particleVec.Et() + c;
+  std::cout << "Error on Eta: " << InvPerr2/particleVec.Eta() << std::endl;
+  return InvPerr2;*/
+
+  return 0.05 * particleVec.Eta();
 }
 
-Double_t KinFitOutputModule::ErrPhi(Float_t Et, Float_t Eta) {
-  Double_t InvPerr2, a, b, c;
-  if(fabs(Eta) < 1.4){
+Double_t KinFitOutputModule::ErrPhi(TLorentzVector particleVec) {
+  /*Double_t InvPerr2, a, b, c;
+  if(fabs(particleVec.Eta()) < 1.4){
     a = 6.65;
     b = 0.04;
     c = 8.49 * 0.00001;
@@ -61,8 +67,11 @@ Double_t KinFitOutputModule::ErrPhi(Float_t Et, Float_t Eta) {
     b = 0.021;
     c = 2.59 * 0.0001;
   }
-  InvPerr2 = a/(Et * Et) + b/Et + c;
-  return InvPerr2;
+  InvPerr2 = a/(particleVec.Et() * particleVec.Et()) + b/particleVec.Et() + c;
+  std::cout << "Error on Phi: " << InvPerr2/particleVec.Phi() << std::endl;
+  return InvPerr2;*/
+
+  return 0.05 * particleVec.Phi();
 }
 
 Float_t KinFitOutputModule::calculatePt(Float_t Et, Float_t eta, Float_t phi, Float_t m)
@@ -113,15 +122,15 @@ Particles KinFitOutputModule::fitEvent(Particles event)
   m3.Zero();
 
   // In this example the covariant matrix depends on the transverse energy and eta of the jets
-  m1(0,0) = ErrEt (mTauVec.Et(), mTauVec.Eta()); // et
-  m1(1,1) = ErrEta(mTauVec.Et(), mTauVec.Eta()); // eta
-  m1(2,2) = ErrPhi(mTauVec.Et(), mTauVec.Eta()); // phi
-  m2(0,0) = ErrEt (hTauVec.Et(), hTauVec.Eta()); // et
-  m2(1,1) = ErrEta(hTauVec.Et(), hTauVec.Eta()); // eta
-  m2(2,2) = ErrPhi(hTauVec.Et(), hTauVec.Eta()); // phi
-  m3(0,0) = ErrEt (bJet1Vec.Et(), bJet1Vec.Eta()); // et
-  m3(1,1) = ErrEta(bJet1Vec.Et(), bJet1Vec.Eta()); // eta
-  m3(2,2) = ErrPhi(bJet1Vec.Et(), bJet1Vec.Eta()); // phi
+  m1(0,0) = ErrEt (mTauVec); // et
+  m1(1,1) = ErrEta(mTauVec); // eta
+  m1(2,2) = ErrPhi(mTauVec); // phi
+  m2(0,0) = ErrEt (hTauVec); // et
+  m2(1,1) = ErrEta(hTauVec); // eta
+  m2(2,2) = ErrPhi(hTauVec); // phi
+  m3(0,0) = ErrEt (bJet1Vec); // et
+  m3(1,1) = ErrEta(bJet1Vec); // eta
+  m3(2,2) = ErrPhi(bJet1Vec); // phi
 
   TFitParticleEtEtaPhi *mTau = new TFitParticleEtEtaPhi( "mTau", "mTau", &mTauVec, &m1 );
   TFitParticleEtEtaPhi *hTau = new TFitParticleEtEtaPhi( "hTau", "hTau", &hTauVec, &m2 );
@@ -136,14 +145,14 @@ Particles KinFitOutputModule::fitEvent(Particles event)
 
   if (event.getNumParticles(5) == 2)  // Do everything including the second b-jet
   {
-    auto bJet2Vec = event.getParticleVectors()[1];
+    auto bJet2Vec = event.getParticleVectors(5)[1];
     
     TMatrixD m4(3,3);
     m4.Zero();
     
-    m4(0,0) = ErrEt (bJet2Vec.Et(), bJet2Vec.Eta()); // et
-    m4(1,1) = ErrEta(bJet2Vec.Et(), bJet2Vec.Eta()); // eta
-    m4(2,2) = ErrPhi(bJet2Vec.Et(), bJet2Vec.Eta()); // phi
+    m4(0,0) = ErrEt (bJet2Vec); // et
+    m4(1,1) = ErrEta(bJet2Vec); // eta
+    m4(2,2) = ErrPhi(bJet2Vec); // phi
 
     TFitParticleEtEtaPhi *bJet2 = new TFitParticleEtEtaPhi( "bJet2", "bJet2", &bJet2Vec, &m4 );
 
