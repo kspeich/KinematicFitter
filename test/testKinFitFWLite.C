@@ -49,9 +49,13 @@ void testKinFitFWLite()
   
   std::cout << "Creating KinFit Histograms...\n";
   auto signalKinFitOutputMod = KinFitOutputModule(recoSignalTree, "RecoSignalKinFitHistograms.root");
+  signalKinFitOutputMod.run();
   auto dyJetsKinFitOutputMod = KinFitOutputModule(recoDYJetsTree, "RecoDYJetsKinFitHistograms.root");
+  dyJetsKinFitOutputMod.run();
   auto ttLeptonicKinFitOutputMod = KinFitOutputModule(recoTTLeptonicTree, "RecoTTLeptonicKinFitHistograms.root");
+  ttLeptonicKinFitOutputMod.run();
   auto ttSemiLeptonicKinFitOutputMod = KinFitOutputModule(recoTTSemiLeptonicTree, "RecoTTSemiLeptonicKinFitHistograms.root");
+  ttSemiLeptonicKinFitOutputMod.run();
 
   std::cout << "Calculating S/B and S/sqrt(S+B) ratios...\n";
   double lumi = 59.74;

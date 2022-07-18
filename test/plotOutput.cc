@@ -17,10 +17,10 @@ void overlayPlots(std::string canvasName, std::string xAxis, std::string yAxis, 
 void plotOutput()
 {
   gStyle->SetOptStat(0);
-  TFile* kinFitHistograms = TFile::Open("SignalKinFitHistograms.root");
-  TFile* dyJetsKinFitHistograms = TFile::Open("DYJetsKinFitHistograms.root");
-  TFile* ttLeptonicKinFitHistograms = TFile::Open("TTLeptonicKinFitHistograms.root");
-  TFile* ttSemiLeptonicKinFitHistograms = TFile::Open("TTSemiLeptonicKinFitHistograms.root");
+  TFile* kinFitHistograms = TFile::Open("RecoSignalKinFitHistograms.root");
+  TFile* dyJetsKinFitHistograms = TFile::Open("RecoDYJetsKinFitHistograms.root");
+  TFile* ttLeptonicKinFitHistograms = TFile::Open("RecoTTLeptonicKinFitHistograms.root");
+  TFile* ttSemiLeptonicKinFitHistograms = TFile::Open("RecoTTSemiLeptonicKinFitHistograms.root");
   
   std::vector<TFile*> files = {kinFitHistograms, dyJetsKinFitHistograms, ttLeptonicKinFitHistograms, ttSemiLeptonicKinFitHistograms};
   std::vector<std::string> unfittedBB = {"Unfitted BB Invariant Mass;1", "Unfitted BB Invariant Mass;1", "Unfitted BB Invariant Mass;1", "Unfitted BB Invariant Mass;1"};
@@ -35,14 +35,14 @@ void plotOutput()
   overlayPlots("Unfitted Tau Tau Invariant Mass (Gen)", "Invariant Mass (GeV)", "Number of Events", files, unfittedTauTau, legends, colors);
   overlayPlots("Fitted Tau Tau Invariant Mass (Gen)", "Invariant Mass (GeV)", "Number of Events", files, fittedTauTau, legends, colors);
 
-  overlayPlots("H->aa->bbtautau Tau Tau Invariant Mass (Gen)", "Invariant Mass (GeV)", "Number of Events", {kinFitHistograms, kinFitHistograms}, {"Unfitted Tau Tau Invariant Mass;1", "Fitted Tau Tau Invariant Mass;1"}, {"Original", "Kinematic Fit"}, {kBlue, kRed});
-  overlayPlots("H->aa->bbtautau BB Invariant Mass (Gen)", "Invariant Mass (GeV)", "Number of Events", {kinFitHistograms, kinFitHistograms}, {"Unfitted BB Invariant Mass;1", "Fitted BB Invariant Mass;1"}, {"Original", "Kinematic Fit"}, {kBlue, kRed});
-  overlayPlots("DY Jets Tau Tau Invariant Mass (Gen)", "Invariant Mass (GeV)", "Number of Events", {dyJetsKinFitHistograms, dyJetsKinFitHistograms}, {"Unfitted Tau Tau Invariant Mass;1", "Fitted Tau Tau Invariant Mass;1"}, {"Original", "Kinematic Fit"}, {kBlue, kRed});
-  overlayPlots("DY Jets BB Invariant Mass (Gen)", "Invariant Mass (GeV)", "Number of Events", {dyJetsKinFitHistograms, dyJetsKinFitHistograms}, {"Unfitted BB Invariant Mass;1", "Fitted BB Invariant Mass;1"}, {"Original", "Kinematic Fit"}, {kBlue, kRed});
-  overlayPlots("TT Leptonic Tau Tau Invariant Mass (Gen)", "Invariant Mass (GeV)", "Number of Events", {ttLeptonicKinFitHistograms, ttLeptonicKinFitHistograms}, {"Unfitted Tau Tau Invariant Mass;1", "Fitted Tau Tau Invariant Mass;1"}, {"Original", "Kinematic Fit"}, {kBlue, kRed});
-  overlayPlots("TT Leptonic BB Invariant Mass (Gen)", "Invariant Mass (GeV)", "Number of Events", {ttLeptonicKinFitHistograms, ttLeptonicKinFitHistograms}, {"Unfitted BB Invariant Mass;1", "Fitted BB Invariant Mass;1"}, {"Original", "Kinematic Fit"}, {kBlue, kRed});
-  overlayPlots("TT Semi-Leptonic Tau Tau Invariant Mass (Gen)", "Invariant Mass (GeV)", "Number of Events", {ttSemiLeptonicKinFitHistograms, ttSemiLeptonicKinFitHistograms}, {"Unfitted Tau Tau Invariant Mass;1", "Fitted Tau Tau Invariant Mass;1"}, {"Original", "Kinematic Fit"}, {kBlue, kRed});
-  overlayPlots("TT Semi-Leptonic BB Invariant Mass (Gen)", "Invariant Mass (GeV)", "Number of Events", {ttSemiLeptonicKinFitHistograms, ttSemiLeptonicKinFitHistograms}, {"Unfitted BB Invariant Mass;1", "Fitted BB Invariant Mass;1"}, {"Original", "Kinematic Fit"}, {kBlue, kRed});
+  overlayPlots("H->aa->bbtautau Tau Tau Invariant Mass (Gen)", "Invariant Mass (GeV)", "Number of Events", {kinFitHistograms, kinFitHistograms}, {"Unfitted Tau Tau Invariant Mass;1", "Fitted Tau Tau Invariant Mass;1"}, {"Before Kinematic Fit", "After Kinematic Fit"}, {kBlue, kRed});
+  overlayPlots("H->aa->bbtautau BB Invariant Mass (Gen)", "Invariant Mass (GeV)", "Number of Events", {kinFitHistograms, kinFitHistograms}, {"Unfitted BB Invariant Mass;1", "Fitted BB Invariant Mass;1"}, {"Before Kinematic Fit", "After Kinematic Fit"}, {kBlue, kRed});
+  overlayPlots("DY Jets Tau Tau Invariant Mass (Gen)", "Invariant Mass (GeV)", "Number of Events", {dyJetsKinFitHistograms, dyJetsKinFitHistograms}, {"Unfitted Tau Tau Invariant Mass;1", "Fitted Tau Tau Invariant Mass;1"}, {"Before Kinematic Fit", "After Kinematic Fit"}, {kBlue, kRed});
+  overlayPlots("DY Jets BB Invariant Mass (Gen)", "Invariant Mass (GeV)", "Number of Events", {dyJetsKinFitHistograms, dyJetsKinFitHistograms}, {"Unfitted BB Invariant Mass;1", "Fitted BB Invariant Mass;1"}, {"Before Kinematic Fit", "After Kinematic Fit"}, {kBlue, kRed});
+  overlayPlots("TT Leptonic Tau Tau Invariant Mass (Gen)", "Invariant Mass (GeV)", "Number of Events", {ttLeptonicKinFitHistograms, ttLeptonicKinFitHistograms}, {"Unfitted Tau Tau Invariant Mass;1", "Fitted Tau Tau Invariant Mass;1"}, {"Before Kinematic Fit", "After Kinematic Fit"}, {kBlue, kRed});
+  overlayPlots("TT Leptonic BB Invariant Mass (Gen)", "Invariant Mass (GeV)", "Number of Events", {ttLeptonicKinFitHistograms, ttLeptonicKinFitHistograms}, {"Unfitted BB Invariant Mass;1", "Fitted BB Invariant Mass;1"}, {"Before Kinematic Fit", "After Kinematic Fit"}, {kBlue, kRed});
+  overlayPlots("TT Semi-Leptonic Tau Tau Invariant Mass (Gen)", "Invariant Mass (GeV)", "Number of Events", {ttSemiLeptonicKinFitHistograms, ttSemiLeptonicKinFitHistograms}, {"Unfitted Tau Tau Invariant Mass;1", "Fitted Tau Tau Invariant Mass;1"}, {"Before Kinematic Fit", "After Kinematic Fit"}, {kBlue, kRed});
+  overlayPlots("TT Semi-Leptonic BB Invariant Mass (Gen)", "Invariant Mass (GeV)", "Number of Events", {ttSemiLeptonicKinFitHistograms, ttSemiLeptonicKinFitHistograms}, {"Unfitted BB Invariant Mass;1", "Fitted BB Invariant Mass;1"}, {"Before Kinematic Fit", "After Kinematic Fit"}, {kBlue, kRed});
 }
 
 void overlayPlots(std::string canvasName, std::string xAxis, std::string yAxis, std::vector<TFile*> files, std::vector<std::string> histNames, std::vector<std::string> legends, std::vector<Color_t> colors)
