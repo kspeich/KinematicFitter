@@ -21,15 +21,14 @@ class KinFitOutputModule
 {
 public:
   KinFitOutputModule(TTree* iTree, std::string iOutputFile);
-  ~KinFitOutputModule() {};
+  virtual ~KinFitOutputModule() {};
   
   std::vector<Particles> getUnfittedEvents() {return unfittedEvents;};
   std::vector<Particles> getFittedEvents() {return fittedEvents;};
 
   void run();
 
-private:
-  TTree* tree;
+protected:
   std::vector<Particles> unfittedEvents;
   std::vector<Particles> fittedEvents;
   std::vector<TH1F*> histograms;
@@ -42,10 +41,12 @@ private:
   
   Float_t calculatePt(Float_t Et, Float_t eta, Float_t phi, Float_t m);
 
+  virtual bool criteriaNotMet(Particles event) {return event.getNumParticles(15) != 2 || event.getNumParticles(5) > 2 || event.getNumParticles(5) < 1;};
+
   void print(TKinFitter *fitter);
 
-  Particles fitEvent(Particles event);
-  void runFitter();
+  virtual Particles fitEvent(Particles event);
+  virtual void runFitter(TTree* tree);
   void fillHistograms(Particles event, TH1F* hEt, TH1F* hEta, TH1F* hPhi, TH1F* hTauTauInvMass, TH1F* hBBInvMass);
 
   void makeHistograms();

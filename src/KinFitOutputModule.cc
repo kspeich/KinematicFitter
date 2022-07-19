@@ -4,17 +4,16 @@
 #include <vector>
 #include <cmath>
 
+KinFitOutputModule::KinFitOutputModule(TTree* tree, std::string iOutputFile) :
+  outputFile(iOutputFile)
+{
+  runFitter(tree);
+}
+
 void KinFitOutputModule::run()
 {
   makeHistograms();
   drawHistograms();
-}
-
-KinFitOutputModule::KinFitOutputModule(TTree* iTree, std::string iOutputFile) :
-  tree(iTree),
-  outputFile(iOutputFile)
-{
-  runFitter();
 }
 
 Double_t KinFitOutputModule::ErrEt(TLorentzVector particleVec) {
@@ -104,8 +103,9 @@ void KinFitOutputModule::print(TKinFitter *fitter)
 
 Particles KinFitOutputModule::fitEvent(Particles event)
 {
-  if (event.getNumParticles(15) != 2 || event.getNumParticles(5) > 2 || event.getNumParticles(5) < 1)
+  if (criteriaNotMet(event))
   {
+    std::cout << "blegh\n";
     auto empty = Particles();
     return empty;
   }
@@ -121,7 +121,6 @@ Particles KinFitOutputModule::fitEvent(Particles event)
   m2.Zero();
   m3.Zero();
 
-  // In this example the covariant matrix depends on the transverse energy and eta of the jets
   m1(0,0) = ErrEt (mTauVec); // et
   m1(1,1) = ErrEta(mTauVec); // eta
   m1(2,2) = ErrPhi(mTauVec); // phi
@@ -166,6 +165,7 @@ Particles KinFitOutputModule::fitEvent(Particles event)
 
     particles.push_back(bJet2);
     constraints.push_back(mCons2);
+    constraints.push_back(mCons3);
   }
 
   // Make the fitter, add particles and constraints
@@ -221,7 +221,7 @@ Particles KinFitOutputModule::fitEvent(Particles event)
   return params;
 }
 
-void KinFitOutputModule::runFitter()
+void KinFitOutputModule::runFitter(TTree* tree)
 {
   // Set the addresses of the branches to elsewhere
   Float_t pt1, eta1, phi1, m1, pt2, eta2, phi2, m2, pt3, eta3, phi3, m3, pt4, eta4, phi4, m4;
@@ -282,8 +282,9 @@ void KinFitOutputModule::runFitter()
 
 void KinFitOutputModule::fillHistograms(Particles event, TH1F* hEt, TH1F* hEta, TH1F* hPhi, TH1F* hTauTauInvMass, TH1F* hBBInvMass)
 {
-  if (event.getNumParticles(15) != 2 || event.getNumParticles(5) > 2 || event.getNumParticles(5) < 1)
+  if (criteriaNotMet(event))
   {
+    std::cout << "blorjck\n";
     return;
   }
 

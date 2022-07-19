@@ -12,6 +12,7 @@ class Particles
 {
 public:
   Particles() {};
+  Particles(std::vector<Particle> iParticles) : particles(iParticles) {};
   virtual ~Particles() {};
 
   void addParticle(Particle particle) {particles.push_back(particle);};
