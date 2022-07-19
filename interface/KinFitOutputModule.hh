@@ -41,8 +41,6 @@ protected:
   
   Float_t calculatePt(Float_t Et, Float_t eta, Float_t phi, Float_t m);
 
-  virtual bool criteriaNotMet(Particles event) {return event.getNumParticles(15) != 2 || event.getNumParticles(5) > 2 || event.getNumParticles(5) < 1;};
-
   void print(TKinFitter *fitter);
 
   virtual Particles fitEvent(Particles event);

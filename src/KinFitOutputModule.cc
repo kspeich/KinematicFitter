@@ -103,13 +103,6 @@ void KinFitOutputModule::print(TKinFitter *fitter)
 
 Particles KinFitOutputModule::fitEvent(Particles event)
 {
-  if (criteriaNotMet(event))
-  {
-    std::cout << "blegh\n";
-    auto empty = Particles();
-    return empty;
-  }
-
   auto mTauVec = event.getParticleVectors(15)[0];
   auto hTauVec = event.getParticleVectors(15)[1];
   auto bJet1Vec = event.getParticleVectors(5)[0];
@@ -282,12 +275,6 @@ void KinFitOutputModule::runFitter(TTree* tree)
 
 void KinFitOutputModule::fillHistograms(Particles event, TH1F* hEt, TH1F* hEta, TH1F* hPhi, TH1F* hTauTauInvMass, TH1F* hBBInvMass)
 {
-  if (criteriaNotMet(event))
-  {
-    std::cout << "blorjck\n";
-    return;
-  }
-
   for (auto particle : event.getParticles())
   {
     hEt->Fill(particle.Et());
