@@ -16,60 +16,18 @@ void KinFitOutputModule::run()
   drawHistograms();
 }
 
-Double_t KinFitOutputModule::ErrEt(TLorentzVector particleVec) {
-  /*Double_t InvPerr2, a, b, c;
-  if(fabs(particleVec.Eta()) < 1.4){
-    a = 5.6;
-    b = 1.25;
-    c = 0.033;
-  }
-  else{
-    a = 4.8;
-    b = 0.89;
-    c = 0.043;
-  }
-  InvPerr2 = (a * a) + (b * b) * particleVec.Et() + (c * c) * particleVec.Et() * particleVec.Et();
-  std::cout << "Error on Et: " << InvPerr2/particleVec.Et() << std::endl;
-  return InvPerr2;*/
-
+Double_t KinFitOutputModule::ErrEt(TLorentzVector particleVec)
+{  
   return 0.05 * particleVec.Et();
 }
 
-Double_t KinFitOutputModule::ErrEta(TLorentzVector particleVec) {
-  /*Double_t InvPerr2, a, b, c;
-  if(fabs(particleVec.Eta()) < 1.4){
-    a = 1.215;
-    b = 0.037;
-    c = 7.941 * 0.0001;
-  }
-  else{
-    a = 1.773;
-    b = 0.034;
-    c = 3.56 * 0.0001;
-  }
-  InvPerr2 = a/(particleVec.Et() * particleVec.Et()) + b/particleVec.Et() + c;
-  std::cout << "Error on Eta: " << InvPerr2/particleVec.Eta() << std::endl;
-  return InvPerr2;*/
-
+Double_t KinFitOutputModule::ErrEta(TLorentzVector particleVec)
+{
   return 0.05 * particleVec.Eta();
 }
 
-Double_t KinFitOutputModule::ErrPhi(TLorentzVector particleVec) {
-  /*Double_t InvPerr2, a, b, c;
-  if(fabs(particleVec.Eta()) < 1.4){
-    a = 6.65;
-    b = 0.04;
-    c = 8.49 * 0.00001;
-  }
-  else{
-    a = 2.908;
-    b = 0.021;
-    c = 2.59 * 0.0001;
-  }
-  InvPerr2 = a/(particleVec.Et() * particleVec.Et()) + b/particleVec.Et() + c;
-  std::cout << "Error on Phi: " << InvPerr2/particleVec.Phi() << std::endl;
-  return InvPerr2;*/
-
+Double_t KinFitOutputModule::ErrPhi(TLorentzVector particleVec)
+{
   return 0.05 * particleVec.Phi();
 }
 
@@ -322,14 +280,14 @@ void KinFitOutputModule::makeHistograms()
 
 void KinFitOutputModule::drawHistograms()
 {
-  TFile* outFile = new TFile(outputFile.c_str(), "RECREATE");
+  TFile* outFile = new TFile(("Histograms/" + outputFile).c_str(), "RECREATE");
   
   for (auto histogram : histograms)
   {
     histogram->Write();
   }
 
-  std::cout << "Histograms written to " << outputFile << '\n';
+  std::cout << "Histograms written to Histograms/" << outputFile << '\n';
   outFile->Close();
   delete outFile;
 }
