@@ -1,6 +1,17 @@
 #include "PhysicsTools/KinFitter/interface/SVFitKinFitOutputModule.hh"
 #include "PhysicsTools/KinFitter/interface/KinFitOutputModule.hh"
 
+SVFitKinFitOutputModule::SVFitKinFitOutputModule(TTree* iTree, std::string iOutputFile) : 
+  KinFitOutputModule(iTree, iOutputFile)
+{}
+
+void SVFitKinFitOutputModule::run()
+{
+  runFitter();
+  makeHistograms();
+  drawHistograms();
+}
+
 Particles SVFitKinFitOutputModule::fitEvent(Particles event)
 {
   auto diTauVec = event.getParticleVectors(15)[0];
@@ -23,10 +34,10 @@ Particles SVFitKinFitOutputModule::fitEvent(Particles event)
 
   // diTau must make an a pseudoscalar
   TFitConstraintM *mCons1 = new TFitConstraintM("AMassConstraint1", "AMass-Constraint1", 0, 0, 45.);
-  mCons1->addParticles1(diTau);
+  //mCons1->addParticles1(diTau);
 
   std::vector<TFitParticleEtEtaPhi*> particles = {diTau, bJet1};
-  std::vector<TFitConstraintM*> constraints = {mCons1};
+  std::vector<TFitConstraintM*> constraints;
 
   if (event.getNumParticles(5) == 2)  // Do everything including the second b-jet
   {
@@ -107,7 +118,7 @@ Particles SVFitKinFitOutputModule::fitEvent(Particles event)
   return params;
 }
 
-void SVFitKinFitOutputModule::runFitter(TTree* tree)
+void SVFitKinFitOutputModule::runFitter()
 {
   // Set the addresses of the branches to elsewhere
   Float_t pt1, eta1, phi1, m1, pt2, eta2, phi2, m2, m3, pt3, eta3, phi3;

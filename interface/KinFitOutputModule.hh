@@ -26,9 +26,11 @@ public:
   std::vector<Particles> getUnfittedEvents() {return unfittedEvents;};
   std::vector<Particles> getFittedEvents() {return fittedEvents;};
 
-  void run();
+  virtual void run();
 
 protected:
+  TTree* tree;
+
   std::vector<Particles> unfittedEvents;
   std::vector<Particles> fittedEvents;
   std::vector<TH1F*> histograms;
@@ -44,7 +46,7 @@ protected:
   void print(TKinFitter *fitter);
 
   virtual Particles fitEvent(Particles event);
-  virtual void runFitter(TTree* tree);
+  virtual void runFitter();
   void fillHistograms(Particles event, TH1F* hEt, TH1F* hEta, TH1F* hPhi, TH1F* hTauTauInvMass, TH1F* hBBInvMass);
 
   void makeHistograms();

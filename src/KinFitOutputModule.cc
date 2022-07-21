@@ -4,14 +4,14 @@
 #include <vector>
 #include <cmath>
 
-KinFitOutputModule::KinFitOutputModule(TTree* tree, std::string iOutputFile) :
+KinFitOutputModule::KinFitOutputModule(TTree* iTree, std::string iOutputFile) :
+  tree(iTree),
   outputFile(iOutputFile)
-{
-  runFitter(tree);
-}
+{}
 
 void KinFitOutputModule::run()
 {
+  runFitter();
   makeHistograms();
   drawHistograms();
 }
@@ -172,7 +172,7 @@ Particles KinFitOutputModule::fitEvent(Particles event)
   return params;
 }
 
-void KinFitOutputModule::runFitter(TTree* tree)
+void KinFitOutputModule::runFitter()
 {
   // Set the addresses of the branches to elsewhere
   Float_t pt1, eta1, phi1, m1, pt2, eta2, phi2, m2, pt3, eta3, phi3, m3, pt4, eta4, phi4, m4;
@@ -195,9 +195,9 @@ void KinFitOutputModule::runFitter(TTree* tree)
 
   // Loop through each event, perform necessary calculations, and fill the histograms
   int max = tree->GetEntries();
-  if (max > 100000)
+  if (max > 10000)
   {
-    max = 100000;
+    max = 10000;
   }
   for(int i = 0; i < max; i++)   // GetEntries() returns the # of entries in the branch
   {
@@ -264,6 +264,15 @@ void KinFitOutputModule::makeHistograms()
   auto *hTauTauInvMassFit = new TH1F("Fitted Tau Tau Invariant Mass", "Fitted Tau Tau Invariant Mass", 100, 0, 200);
   auto *hBBInvMassFit = new TH1F("Fitted BB Invariant Mass", "Fitted BB Invariant Mass", 100, 0, 200);
 
+  auto *hEtaBFit = new TH1F("Fitted Leading b-quark Eta", "Fitted Leading b-quark Eta", 100, -10, 10);
+  auto *hEtaNTLBFit = new TH1F("Fitted Next-To-Leading b-quark Eta", "Fitted Next-To-Leading b-quark Eta", 100, -10, 10);
+  auto *hEtaTauFit = new TH1F("Fitted Leading Tau Eta", "Fitted Leading Tau Eta", 100, -10, 10);
+  auto *hEtaNTLTauFit = new TH1F("Fitted Next-To-Leading Tau Eta", "Fitted Next-To-Leading Tau Eta", 100, -10, 10);
+  auto *hPhiBFit = new TH1F("Fitted Leading b-quark Phi", "Fitted Leading b-quark Phi", 100, -4, 4);
+  auto *hPhiNTLBFit = new TH1F("Fitted Next-To-Leading b-quark Phi", "Fitted Next-To-Leading b-quark Phi", 100, -4, 4);
+  auto *hPhiTauFit = new TH1F("Fitted Leading Tau Phi", "Fitted Leading Tau Phi", 100, -4, 4);
+  auto *hPhiNTLTauFit = new TH1F("Fitted Next-To-Leading Tau Phi", "Fitted Next-To-Leading Tau Phi", 100, -4, 4);
+
   // Fill the histograms
   for (auto unfittedEvent : unfittedEvents)
   {
@@ -272,10 +281,41 @@ void KinFitOutputModule::makeHistograms()
   for (auto fittedEvent : fittedEvents)
   {
     fillHistograms(fittedEvent, hEtFit, hEtaFit, hPhiFit, hTauTauInvMassFit, hBBInvMassFit);
+
+    auto bquarks = fittedEvent.getParticles(5);
+
+    if (bquarks.getNumParticles() == 1)
+    {
+      hEtaBFit->Fill(bquarks.getParticles()[0].Eta());
+      hPhiBFit->Fill(bquarks.getParticles()[0].Phi());
+    }
+    else if (bquarks.getNumParticles() == 2)
+    {
+      if (bquarks.getParticles()[0].Pt() > bquarks.getParticles()[1].Pt())
+      {
+        hEtaBFit->Fill(bquarks.getParticles()[0].Eta());
+        hPhiBFit->Fill(bquarks.getParticles()[0].Phi());
+        hEtaNTLBFit->Fill(bquarks.getParticles()[1].Eta());
+        hPhiNTLBFit->Fill(bquarks.getParticles()[1].Phi());
+      }
+    }
+
+    auto taus = fittedEvent.getParticles(15);
+
+    if (taus.getNumParticles() == 2)
+    {
+      if (taus.getParticles()[0].Pt() > taus.getParticles()[1].Pt())
+      {
+        hEtaTauFit->Fill(taus.getParticles()[0].Eta());
+        hPhiTauFit->Fill(taus.getParticles()[0].Phi());
+        hEtaNTLTauFit->Fill(taus.getParticles()[1].Eta());
+        hPhiNTLTauFit->Fill(taus.getParticles()[1].Phi());
+      }
+    }
   }
 
   // Add
-  histograms = {hEt, hEta, hPhi, hTauTauInvMass, hBBInvMass, hEtFit, hEtaFit, hPhiFit, hTauTauInvMassFit, hBBInvMassFit};
+  histograms = {hEt, hEta, hPhi, hTauTauInvMass, hBBInvMass, hEtFit, hEtaFit, hPhiFit, hTauTauInvMassFit, hBBInvMassFit, hEtaBFit, hEtaNTLBFit, hPhiBFit, hPhiNTLBFit, hEtaTauFit, hEtaNTLTauFit, hPhiTauFit, hPhiNTLTauFit};
 }
 
 void KinFitOutputModule::drawHistograms()

@@ -11,20 +11,18 @@
 void testKinFitFWLite()
 {
   // Read the signal files
-  TFile *genSignal = TFile::Open("InputFiles/signalSelectedEvents.root");
-  TTree *genSignalTree = (TTree *) genSignal->Get("mutau_tree");
-  TFile *recoSignal = TFile::Open("/afs/cern.ch/work/s/skkwan/public/forKodai/SUSYGluGluToHToAA_AToBB_AToTauTau_M-45_Skim.root");
+  TFile *recoSignal = TFile::Open("InputFiles/SUSYGluGluToHToAA_AToBB_AToTauTau_M-45_Skim.root");
   TTree *recoSignalTree = (TTree *) recoSignal->Get("mutau_tree");
   TFile *recoSVFitSignal = TFile::Open("InputFiles/SUSYGluGluToHToAA_AToBB_AToTauTau_M-45_Skim_svfitted.root");
   TTree *recoSVFitSignalTree = (TTree *) recoSVFitSignal->Get("mutau_tree");
   double signalCrossSection = 48.61 * 0.1;
 
   // Open Background Files
-  TFile *recoDYJets = TFile::Open("/afs/cern.ch/work/s/skkwan/public/forKodai/DYJetsToLL_Skim.root");
+  TFile *recoDYJets = TFile::Open("InputFiles/DYJetsToLL_Skim.root");
   TTree *recoDYJetsTree = (TTree *) recoDYJets->Get("mutau_tree");
-  TFile *recoTTLeptonic = TFile::Open("/afs/cern.ch/work/s/skkwan/public/forKodai/TTTo2L2Nu_Skim.root");
+  TFile *recoTTLeptonic = TFile::Open("InputFiles/TTTo2L2Nu_Skim.root");
   TTree *recoTTLeptonicTree = (TTree *) recoTTLeptonic->Get("mutau_tree");
-  TFile *recoTTSemiLeptonic = TFile::Open("/afs/cern.ch/work/s/skkwan/public/forKodai/TTToSemiLeptonic_Skim.root");
+  TFile *recoTTSemiLeptonic = TFile::Open("InputFiles/TTToSemiLeptonic_Skim.root");
   TTree *recoTTSemiLeptonicTree = (TTree *) recoTTSemiLeptonic->Get("mutau_tree");
   TFile *recoSVFitDYJets = TFile::Open("InputFiles/DYJetsToLL_Skim_svfitted.root");
   TTree *recoSVFitDYJetsTree = (TTree *) recoSVFitDYJets->Get("mutau_tree");
@@ -37,10 +35,7 @@ void testKinFitFWLite()
   double ttSemiLeptonicCrossSection = 365.35;
   
 
-  std::cout << "Creating KinFit Histograms...\n";
-  auto kinFitOutputMod = KinFitOutputModule(genSignalTree, "GenSignalKinFitHistograms.root");
-  kinFitOutputMod.run();
-
+  /*std::cout << "Creating KinFit Histograms...\n";
   auto signalKinFitOutputMod = KinFitOutputModule(recoSignalTree, "RecoSignalKinFitHistograms.root");
   signalKinFitOutputMod.run();
   auto dyJetsKinFitOutputMod = KinFitOutputModule(recoDYJetsTree, "RecoDYJetsKinFitHistograms.root");
@@ -48,7 +43,7 @@ void testKinFitFWLite()
   auto ttLeptonicKinFitOutputMod = KinFitOutputModule(recoTTLeptonicTree, "RecoTTLeptonicKinFitHistograms.root");
   ttLeptonicKinFitOutputMod.run();
   auto ttSemiLeptonicKinFitOutputMod = KinFitOutputModule(recoTTSemiLeptonicTree, "RecoTTSemiLeptonicKinFitHistograms.root");
-  ttSemiLeptonicKinFitOutputMod.run();
+  ttSemiLeptonicKinFitOutputMod.run();*/
 
   auto signalSVFitKinFitOutputMod = SVFitKinFitOutputModule(recoSVFitSignalTree, "RecoSVFitSignalKinFitHistograms.root");
   signalSVFitKinFitOutputMod.run();
@@ -60,7 +55,7 @@ void testKinFitFWLite()
   ttSemiLeptonicSVFitKinFitOutputMod.run();
 
 
-  std::cout << "Calculating S/B and S/sqrt(S+B) ratios...\n";
+  /*std::cout << "Calculating S/B and S/sqrt(S+B) ratios...\n";
   double lumi = 59.74;
   auto kinFitEfficiency = KinFitEfficiency(signalKinFitOutputMod, signalCrossSection, lumi);
   kinFitEfficiency.addBackground(dyJetsKinFitOutputMod, dyJetsCrossSection, lumi);
@@ -74,5 +69,5 @@ void testKinFitFWLite()
   svFitKinFitEfficiency.addBackground(ttLeptonicSVFitKinFitOutputMod, ttLeptonicCrossSection, lumi);
   svFitKinFitEfficiency.addBackground(ttSemiLeptonicSVFitKinFitOutputMod, ttSemiLeptonicCrossSection, lumi);
   svFitKinFitEfficiency.run(45., 5., 5.);
-  svFitKinFitEfficiency.run(45., 3., 3.);
+  svFitKinFitEfficiency.run(45., 3., 3.);*/
 }

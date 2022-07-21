@@ -21,12 +21,14 @@
 class SVFitKinFitOutputModule : public KinFitOutputModule
 {
 public:
-  SVFitKinFitOutputModule(TTree* iTree, std::string iOutputFile) : KinFitOutputModule(iTree, iOutputFile) {};
+  SVFitKinFitOutputModule(TTree* iTree, std::string iOutputFile);
   ~SVFitKinFitOutputModule() {};
+  
+  void run() override;
 
 private:
   Particles fitEvent(Particles event) override;
-  void runFitter(TTree* tree) override;
+  void runFitter() override;
 };
 
 #endif
