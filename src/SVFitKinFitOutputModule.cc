@@ -32,10 +32,6 @@ Particles SVFitKinFitOutputModule::fitEvent(Particles event)
   TFitParticleEtEtaPhi *diTau = new TFitParticleEtEtaPhi("diTau", "diTau", &diTauVec, &m1);
   TFitParticleEtEtaPhi *bJet1 = new TFitParticleEtEtaPhi("bJet1", "bJet1", &bJet1Vec, &m2);
 
-  // diTau must make an a pseudoscalar
-  TFitConstraintM *mCons1 = new TFitConstraintM("AMassConstraint1", "AMass-Constraint1", 0, 0, 45.);
-  //mCons1->addParticles1(diTau);
-
   std::vector<TFitParticleEtEtaPhi*> particles = {diTau, bJet1};
   std::vector<TFitConstraintM*> constraints;
 
@@ -53,16 +49,20 @@ Particles SVFitKinFitOutputModule::fitEvent(Particles event)
     TFitParticleEtEtaPhi *bJet2 = new TFitParticleEtEtaPhi("bJet2", "bJet2", &bJet2Vec, &m3);
 
     // bJet1 and bJet2 must make an a pseudoscalar: this only happens when there is a second b-jet
-    TFitConstraintM *mCons2 = new TFitConstraintM("AMassConstraint2", "AMass-Constraint2", 0, 0, 45.);
-    mCons2->addParticles1(bJet1, bJet2);
+    TFitConstraintM *mCons1 = new TFitConstraintM("AMassConstraint2", "AMass-Constraint2", 0, 0, 45.);
+    mCons1->addParticles1(bJet1, bJet2);
 
     // All four particles must make a Higgs
-    TFitConstraintM *mCons3 = new TFitConstraintM( "HiggsMassConstraint", "HiggsMass-Constraint", 0, 0, 125.);
-    mCons3->addParticles1(diTau, bJet1, bJet2);
+    TFitConstraintM *mCons2 = new TFitConstraintM( "HiggsMassConstraint", "HiggsMass-Constraint", 0, 0, 125.);
+    mCons2->addParticles1(diTau, bJet1, bJet2);
 
     particles.push_back(bJet2);
+    constraints.push_back(mCons1);
     constraints.push_back(mCons2);
-    constraints.push_back(mCons3);
+  }
+  else    // Since we aren't fitting the ditau, and there is no constraint since there is no second b-jet to put a constraint on, just return the two objects
+  {
+    return event;
   }
 
   // Make the fitter, add particles and constraints
@@ -89,7 +89,8 @@ Particles SVFitKinFitOutputModule::fitEvent(Particles event)
   // std::cout << "Done." << std::endl;
   // print(fitter);
   
-  Particles params = {};
+  Particles params;
+  params.addParticle(diTauVec, 15);
   
   for (unsigned long int i; i < particles.size(); i++)
   {
@@ -104,8 +105,7 @@ Particles SVFitKinFitOutputModule::fitEvent(Particles event)
     double pt = calculatePt(et, eta, phi, m);
     v.SetPtEtaPhiM(pt, eta, phi, m);
 
-    auto fittedParticle = Particle(v, pdgId);
-    params.addParticle(fittedParticle);
+    params.addParticle(v, pdgId);
   }
   
   for (auto constraint : constraints)
@@ -153,8 +153,8 @@ void SVFitKinFitOutputModule::runFitter()
     TLorentzVector bJet1Vec, bJet2Vec, diTauVec;
     Particles particles;
 
-    bJet1Vec.SetPtEtaPhiM(pt1, eta1, phi1, m1);  // v1 contains the values of the (muonic) tau
-    diTauVec.SetPtEtaPhiM(pt3, eta3, phi3, m3);  // v3 contains the values of the first b-jet
+    bJet1Vec.SetPtEtaPhiM(pt1, eta1, phi1, m1);
+    diTauVec.SetPtEtaPhiM(pt3, eta3, phi3, m3);
 
     // The PDGIDs here represent that the particles are taus and b's, but do not indicate whether they are anti-taus or anti-b's
     particles.addParticle(diTauVec, 15);

@@ -143,7 +143,7 @@ Particles KinFitOutputModule::fitEvent(Particles event)
   // std::cout << "Done." << std::endl;
   // print(fitter);
   
-  Particles params = {};
+  Particles params;
   
   for (unsigned long int i; i < particles.size(); i++)
   {
@@ -158,8 +158,7 @@ Particles KinFitOutputModule::fitEvent(Particles event)
     double pt = calculatePt(et, eta, phi, m);
     v.SetPtEtaPhiM(pt, eta, phi, m);
 
-    auto fittedParticle = Particle(v, pdgId);
-    params.addParticle(fittedParticle);
+    params.addParticle(v, pdgId);
   }
   
   for (auto constraint : constraints)
@@ -195,9 +194,9 @@ void KinFitOutputModule::runFitter()
 
   // Loop through each event, perform necessary calculations, and fill the histograms
   int max = tree->GetEntries();
-  if (max > 10000)
+  if (max > 100000)
   {
-    max = 10000;
+    max = 100000;
   }
   for(int i = 0; i < max; i++)   // GetEntries() returns the # of entries in the branch
   {
