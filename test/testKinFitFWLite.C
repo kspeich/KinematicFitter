@@ -35,7 +35,7 @@ void testKinFitFWLite()
   double ttSemiLeptonicCrossSection = 365.35;
   
 
-  /*std::cout << "Creating KinFit Histograms...\n";
+  std::cout << "Creating KinFit Histograms...\n";
   auto signalKinFitOutputMod = KinFitOutputModule(recoSignalTree, "RecoSignalKinFitHistograms.root");
   signalKinFitOutputMod.run();
   auto dyJetsKinFitOutputMod = KinFitOutputModule(recoDYJetsTree, "RecoDYJetsKinFitHistograms.root");
@@ -43,7 +43,7 @@ void testKinFitFWLite()
   auto ttLeptonicKinFitOutputMod = KinFitOutputModule(recoTTLeptonicTree, "RecoTTLeptonicKinFitHistograms.root");
   ttLeptonicKinFitOutputMod.run();
   auto ttSemiLeptonicKinFitOutputMod = KinFitOutputModule(recoTTSemiLeptonicTree, "RecoTTSemiLeptonicKinFitHistograms.root");
-  ttSemiLeptonicKinFitOutputMod.run();*/
+  ttSemiLeptonicKinFitOutputMod.run();
 
   auto signalSVFitKinFitOutputMod = SVFitKinFitOutputModule(recoSVFitSignalTree, "RecoSVFitSignalKinFitHistograms.root");
   signalSVFitKinFitOutputMod.run();
@@ -55,8 +55,9 @@ void testKinFitFWLite()
   ttSemiLeptonicSVFitKinFitOutputMod.run();
 
 
-  /*std::cout << "Calculating S/B and S/sqrt(S+B) ratios...\n";
+  std::cout << "Calculating S/B and S/sqrt(S+B) ratios...\n";
   double lumi = 59.74;
+  std::cout << "Reco values: \n";
   auto kinFitEfficiency = KinFitEfficiency(signalKinFitOutputMod, signalCrossSection, lumi);
   kinFitEfficiency.addBackground(dyJetsKinFitOutputMod, dyJetsCrossSection, lumi);
   kinFitEfficiency.addBackground(ttLeptonicKinFitOutputMod, ttLeptonicCrossSection, lumi);
@@ -64,10 +65,11 @@ void testKinFitFWLite()
   kinFitEfficiency.run(45., 5., 5.);
   kinFitEfficiency.run(45., 3., 3.);
 
+  std::cout << "SVFit Reco values: \n";
   auto svFitKinFitEfficiency = KinFitEfficiency(signalSVFitKinFitOutputMod, signalCrossSection, lumi);
   svFitKinFitEfficiency.addBackground(dyJetsSVFitKinFitOutputMod, dyJetsCrossSection, lumi);
   svFitKinFitEfficiency.addBackground(ttLeptonicSVFitKinFitOutputMod, ttLeptonicCrossSection, lumi);
   svFitKinFitEfficiency.addBackground(ttSemiLeptonicSVFitKinFitOutputMod, ttSemiLeptonicCrossSection, lumi);
   svFitKinFitEfficiency.run(45., 5., 5.);
-  svFitKinFitEfficiency.run(45., 3., 3.);*/
+  svFitKinFitEfficiency.run(45., 3., 3.);
 }
