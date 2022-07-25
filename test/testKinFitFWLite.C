@@ -11,25 +11,17 @@
 void testKinFitFWLite()
 {
   // Read the signal files
-  TFile *recoSignal = TFile::Open("InputFiles/SUSYGluGluToHToAA_AToBB_AToTauTau_M-45_Skim.root");
-  TTree *recoSignalTree = (TTree *) recoSignal->Get("mutau_tree");
-  TFile *recoSVFitSignal = TFile::Open("InputFiles/SUSYGluGluToHToAA_AToBB_AToTauTau_M-45_Skim_svfitted.root");
-  TTree *recoSVFitSignalTree = (TTree *) recoSVFitSignal->Get("mutau_tree");
+  TFile *recoSignal = TFile::Open("InputFiles/SUSYGluGluToHToAA_AToBB_AToTauTau_M-45_Skim_svfitted.root");
+  TTree *recoSignalTree = (TTree *) recoSVFitSignal->Get("mutau_tree");
   double signalCrossSection = 48.61 * 0.1;
 
   // Open Background Files
-  TFile *recoDYJets = TFile::Open("InputFiles/DYJetsToLL_Skim.root");
-  TTree *recoDYJetsTree = (TTree *) recoDYJets->Get("mutau_tree");
-  TFile *recoTTLeptonic = TFile::Open("InputFiles/TTTo2L2Nu_Skim.root");
-  TTree *recoTTLeptonicTree = (TTree *) recoTTLeptonic->Get("mutau_tree");
-  TFile *recoTTSemiLeptonic = TFile::Open("InputFiles/TTToSemiLeptonic_Skim.root");
-  TTree *recoTTSemiLeptonicTree = (TTree *) recoTTSemiLeptonic->Get("mutau_tree");
-  TFile *recoSVFitDYJets = TFile::Open("InputFiles/DYJetsToLL_Skim_svfitted.root");
-  TTree *recoSVFitDYJetsTree = (TTree *) recoSVFitDYJets->Get("mutau_tree");
-  TFile *recoSVFitTTLeptonic = TFile::Open("InputFiles/TTTo2L2Nu_Skim_svfitted.root");
-  TTree *recoSVFitTTLeptonicTree = (TTree *) recoSVFitTTLeptonic->Get("mutau_tree");
-  TFile *recoSVFitTTSemiLeptonic = TFile::Open("InputFiles/TTToSemiLeptonic_Skim_svfitted.root");
-  TTree *recoSVFitTTSemiLeptonicTree = (TTree *) recoSVFitTTSemiLeptonic->Get("mutau_tree");
+  TFile *recoDYJets = TFile::Open("InputFiles/DYJetsToLL_Skim_svfitted.root");
+  TTree *recoDYJetsTree = (TTree *) recoSVFitDYJets->Get("mutau_tree");
+  TFile *recoTTLeptonic = TFile::Open("InputFiles/TTTo2L2Nu_Skim_svfitted.root");
+  TTree *recoTTLeptonicTree = (TTree *) recoSVFitTTLeptonic->Get("mutau_tree");
+  TFile *recoTTSemiLeptonic = TFile::Open("InputFiles/TTToSemiLeptonic_Skim_svfitted.root");
+  TTree *recoTTSemiLeptonicTree = (TTree *) recoSVFitTTSemiLeptonic->Get("mutau_tree");
   double dyJetsCrossSection = 5343.0;
   double ttLeptonicCrossSection = 88.29;
   double ttSemiLeptonicCrossSection = 365.35;
@@ -45,13 +37,13 @@ void testKinFitFWLite()
   auto ttSemiLeptonicKinFitOutputMod = KinFitOutputModule(recoTTSemiLeptonicTree, "RecoTTSemiLeptonicKinFitHistograms.root");
   ttSemiLeptonicKinFitOutputMod.run();
 
-  auto signalSVFitKinFitOutputMod = SVFitKinFitOutputModule(recoSVFitSignalTree, "RecoSVFitSignalKinFitHistograms.root");
+  auto signalSVFitKinFitOutputMod = SVFitKinFitOutputModule(recoSignalTree, "RecoSVFitSignalKinFitHistograms.root");
   signalSVFitKinFitOutputMod.run();
-  auto dyJetsSVFitKinFitOutputMod = SVFitKinFitOutputModule(recoSVFitDYJetsTree, "RecoSVFitDYJetsKinFitHistograms.root");
+  auto dyJetsSVFitKinFitOutputMod = SVFitKinFitOutputModule(recoDYJetsTree, "RecoSVFitDYJetsKinFitHistograms.root");
   dyJetsSVFitKinFitOutputMod.run();
-  auto ttLeptonicSVFitKinFitOutputMod = SVFitKinFitOutputModule(recoSVFitTTLeptonicTree, "RecoSVFitTTLeptonicKinFitHistograms.root");
+  auto ttLeptonicSVFitKinFitOutputMod = SVFitKinFitOutputModule(recoTTLeptonicTree, "RecoSVFitTTLeptonicKinFitHistograms.root");
   ttLeptonicSVFitKinFitOutputMod.run();
-  auto ttSemiLeptonicSVFitKinFitOutputMod = SVFitKinFitOutputModule(recoSVFitTTSemiLeptonicTree, "RecoSVFitTTSemiLeptonicKinFitHistograms.root");
+  auto ttSemiLeptonicSVFitKinFitOutputMod = SVFitKinFitOutputModule(recoTTSemiLeptonicTree, "RecoSVFitTTSemiLeptonicKinFitHistograms.root");
   ttSemiLeptonicSVFitKinFitOutputMod.run();
 
 

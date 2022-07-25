@@ -31,10 +31,10 @@ void plotOutput()
   TFile* svFitTTLeptonic = TFile::Open("Histograms/RecoSVFitTTLeptonicKinFitHistograms.root");
   TFile* svFitTTSemiLeptonic = TFile::Open("Histograms/RecoSVFitTTSemiLeptonicKinFitHistograms.root");
 
-  //plotKinematics(recoSignal, "H->aa->bbtautau");
-  //plotInvariantMasses(recoSignal, recoDYJets, recoTTLeptonic, recoTTSemiLeptonic);
-  //plotKinematics(svFitSignal, "H->aa->bbtautau", true);
-  //plotInvariantMasses(svFitSignal, svFitDYJets, svFitTTLeptonic, svFitTTSemiLeptonic, true);
+  plotKinematics(recoSignal, "H->aa->bbtautau");
+  plotInvariantMasses(recoSignal, recoDYJets, recoTTLeptonic, recoTTSemiLeptonic);
+  plotKinematics(svFitSignal, "H->aa->bbtautau", true);
+  plotInvariantMasses(svFitSignal, svFitDYJets, svFitTTLeptonic, svFitTTSemiLeptonic, true);
   compareInvariantMasses(recoSignal, svFitSignal, recoDYJets, svFitDYJets, recoTTLeptonic, svFitTTLeptonic, recoTTSemiLeptonic, svFitTTSemiLeptonic, false);
   compareInvariantMasses(recoSignal, svFitSignal, recoDYJets, svFitDYJets, recoTTLeptonic, svFitTTLeptonic, recoTTSemiLeptonic, svFitTTSemiLeptonic, true);
 }

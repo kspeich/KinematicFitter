@@ -15,6 +15,8 @@ public:
   Particles(std::vector<Particle> iParticles) : particles(iParticles) {};
   virtual ~Particles() {};
 
+  Particle operator[](const int i) {return particles[i];};
+
   void addParticle(Particle particle) {particles.push_back(particle);};
   void addParticle(TLorentzVector particle, int pdgId);
 
