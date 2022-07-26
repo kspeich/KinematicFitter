@@ -12,16 +12,16 @@ void testKinFitFWLite()
 {
   // Read the signal files
   TFile *recoSignal = TFile::Open("InputFiles/SUSYGluGluToHToAA_AToBB_AToTauTau_M-45_Skim_svfitted.root");
-  TTree *recoSignalTree = (TTree *) recoSVFitSignal->Get("mutau_tree");
+  TTree *recoSignalTree = (TTree *) recoSignal->Get("mutau_tree");
   double signalCrossSection = 48.61 * 0.1;
 
   // Open Background Files
   TFile *recoDYJets = TFile::Open("InputFiles/DYJetsToLL_Skim_svfitted.root");
-  TTree *recoDYJetsTree = (TTree *) recoSVFitDYJets->Get("mutau_tree");
+  TTree *recoDYJetsTree = (TTree *) recoDYJets->Get("mutau_tree");
   TFile *recoTTLeptonic = TFile::Open("InputFiles/TTTo2L2Nu_Skim_svfitted.root");
-  TTree *recoTTLeptonicTree = (TTree *) recoSVFitTTLeptonic->Get("mutau_tree");
+  TTree *recoTTLeptonicTree = (TTree *) recoTTLeptonic->Get("mutau_tree");
   TFile *recoTTSemiLeptonic = TFile::Open("InputFiles/TTToSemiLeptonic_Skim_svfitted.root");
-  TTree *recoTTSemiLeptonicTree = (TTree *) recoSVFitTTSemiLeptonic->Get("mutau_tree");
+  TTree *recoTTSemiLeptonicTree = (TTree *) recoTTSemiLeptonic->Get("mutau_tree");
   double dyJetsCrossSection = 5343.0;
   double ttLeptonicCrossSection = 88.29;
   double ttSemiLeptonicCrossSection = 365.35;

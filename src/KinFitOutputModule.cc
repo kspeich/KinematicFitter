@@ -59,60 +59,50 @@ void KinFitOutputModule::print(TKinFitter *fitter)
   std::cout << "=============================================" << std ::endl;
 }
 
+TFitParticleEtEtaPhi* KinFitOutputModule::convertParticle(Particle particle)
+{
+  auto vec = particle.getFourVector();
+  
+  TMatrixD covMatrix(3,3);
+  covMatrix.Zero();
+
+  covMatrix(0,0) = ErrEt(vec);
+  covMatrix(1,1) = ErrEta(vec);
+  covMatrix(2,2) = ErrPhi(vec);
+
+  TFitParticleEtEtaPhi *tFitParticle = new TFitParticleEtEtaPhi(&vec, &covMatrix);
+  return tFitParticle;
+}
+
 Particles KinFitOutputModule::fitEvent(Particles event)
 {
-  auto mTauVec = event.getParticleVectors(15)[0];
-  auto hTauVec = event.getParticleVectors(15)[1];
-  auto bJet1Vec = event.getParticleVectors(5)[0];
+  auto mTauPart = event.getParticles(15)[0];
+  auto hTauPart = event.getParticles(15)[1];
+  auto bJet1Part = event.getParticles(5)[0];
 
-  TMatrixD m1(3,3);
-  TMatrixD m2(3,3);
-  TMatrixD m3(3,3);
-  m1.Zero();
-  m2.Zero();
-  m3.Zero();
-
-  m1(0,0) = ErrEt (mTauVec); // et
-  m1(1,1) = ErrEta(mTauVec); // eta
-  m1(2,2) = ErrPhi(mTauVec); // phi
-  m2(0,0) = ErrEt (hTauVec); // et
-  m2(1,1) = ErrEta(hTauVec); // eta
-  m2(2,2) = ErrPhi(hTauVec); // phi
-  m3(0,0) = ErrEt (bJet1Vec); // et
-  m3(1,1) = ErrEta(bJet1Vec); // eta
-  m3(2,2) = ErrPhi(bJet1Vec); // phi
-
-  TFitParticleEtEtaPhi *mTau = new TFitParticleEtEtaPhi( "mTau", "mTau", &mTauVec, &m1 );
-  TFitParticleEtEtaPhi *hTau = new TFitParticleEtEtaPhi( "hTau", "hTau", &hTauVec, &m2 );
-  TFitParticleEtEtaPhi *bJet1 = new TFitParticleEtEtaPhi( "bJet1", "bJet1", &bJet1Vec, &m3 );
+  auto mTau = convertParticle(mTauPart);
+  auto hTau = convertParticle(hTauPart);
+  auto bJet1 = convertParticle(bJet1Part);
 
   // mTau and hTau must make an a pseudoscalar
   TFitConstraintM *mCons1 = new TFitConstraintM( "AMassConstraint1", "AMass-Constraint1", 0, 0 , 45.);
-  mCons1->addParticles1( mTau, hTau );
+  mCons1->addParticles1(mTau, hTau);
 
   std::vector<TFitParticleEtEtaPhi*> particles = {mTau, hTau, bJet1};
   std::vector<TFitConstraintM*> constraints = {mCons1};
 
   if (event.getNumParticles(5) == 2)  // Do everything including the second b-jet
   {
-    auto bJet2Vec = event.getParticleVectors(5)[1];
-    
-    TMatrixD m4(3,3);
-    m4.Zero();
-    
-    m4(0,0) = ErrEt (bJet2Vec); // et
-    m4(1,1) = ErrEta(bJet2Vec); // eta
-    m4(2,2) = ErrPhi(bJet2Vec); // phi
-
-    TFitParticleEtEtaPhi *bJet2 = new TFitParticleEtEtaPhi( "bJet2", "bJet2", &bJet2Vec, &m4 );
+    auto bJet2Part = event.getParticles(5)[1];
+    auto bJet2 = convertParticle(bJet2Part);
 
     // bJet1 and bJet2 must make an a pseudoscalar: this only happens when there is a second b-jet
     TFitConstraintM *mCons2 = new TFitConstraintM( "AMassConstraint2", "AMass-Constraint2", 0, 0 , 45.);
-    mCons2->addParticles1( bJet1, bJet2 );
+    mCons2->addParticles1(bJet1, bJet2);
 
     // All four particles must make a Higgs
     TFitConstraintM *mCons3 = new TFitConstraintM( "HiggsMassConstraint", "HiggsMass-Constraint", 0, 0, 125.);
-    mCons3->addParticles1( mTau, hTau, bJet1, bJet2 );
+    mCons3->addParticles1(mTau, hTau, bJet1, bJet2);
 
     particles.push_back(bJet2);
     constraints.push_back(mCons2);
@@ -247,6 +237,42 @@ void KinFitOutputModule::fillHistograms(Particles event, TH1F* hEt, TH1F* hEta, 
   }
 }
 
+void KinFitOutputModule::fillKinematicHistogramsByLeg(Particles event, int pdgId, std::string kinematic, TH1F* hLeading, TH1F* hNTL)
+{
+  auto particles = event.getParticles(pdgId);
+  auto leading = event.getLeading(pdgId);
+
+  if (kinematic == "et")
+  {
+    hLeading->Fill(leading.Et());
+  }
+  else if (kinematic == "eta")
+  {
+    hLeading->Fill(leading.Eta());
+  }
+  else if (kinematic == "phi")
+  {
+    hLeading->Fill(leading.Phi());
+  }
+
+  if (hNTL != nullptr && event.getNumParticles(pdgId) >= 2)
+  {
+    auto nextToLeading = event.getNextToLeading(pdgId);
+    if (kinematic == "et")
+    {
+      hNTL->Fill(nextToLeading.Et());
+    }
+    else if (kinematic == "eta")
+    {
+      hNTL->Fill(nextToLeading.Eta());
+    }
+    else if (kinematic == "phi")
+    {
+      hNTL->Fill(nextToLeading.Phi());
+    }
+  }
+}
+
 void KinFitOutputModule::makeHistograms()
 {
   // Initialize the unfitted histograms
@@ -263,6 +289,15 @@ void KinFitOutputModule::makeHistograms()
   auto *hTauTauInvMassFit = new TH1F("Fitted Tau Tau Invariant Mass", "Fitted Tau Tau Invariant Mass", 100, 0, 200);
   auto *hBBInvMassFit = new TH1F("Fitted BB Invariant Mass", "Fitted BB Invariant Mass", 100, 0, 200);
 
+  // Initialize the debug/test histograms
+  auto *hEtB = new TH1F("Unfitted Leading b-quark Transverse Energy", "Unfitted Leading b-quark Transverse Energy", 100, -10, 10);
+  auto *hEtNTLB = new TH1F("Unfitted Next-To-Leading b-quark Transverse Energy", "Unfitted Next-To-Leading b-quark Transverse Energy", 100, -10, 10);
+  auto *hEtTau = new TH1F("Unfitted Leading Tau Transverse Energy", "Unfitted Leading Tau Transverse Energy", 100, -10, 10);
+  auto *hEtNTLTau = new TH1F("Unfitted Next-To-Leading Tau Transverse Energy", "Unfitted Next-To-Leading Tau Transverse Energy", 100, -10, 10);
+  auto *hEtBFit = new TH1F("Fitted Leading b-quark Transverse Energy", "Fitted Leading b-quark Transverse Energy", 100, -10, 10);
+  auto *hEtNTLBFit = new TH1F("Fitted Next-To-Leading b-quark Transverse Energy", "Fitted Next-To-Leading b-quark Transverse Energy", 100, -10, 10);
+  auto *hEtTauFit = new TH1F("Fitted Leading Tau Transverse Energy", "Fitted Leading Tau Transverse Energy", 100, -10, 10);
+  auto *hEtNTLTauFit = new TH1F("Fitted Next-To-Leading Tau Transverse Energy", "Fitted Next-To-Leading Tau Transverse Energy", 100, -10, 10);
   auto *hEtaBFit = new TH1F("Fitted Leading b-quark Eta", "Fitted Leading b-quark Eta", 100, -10, 10);
   auto *hEtaNTLBFit = new TH1F("Fitted Next-To-Leading b-quark Eta", "Fitted Next-To-Leading b-quark Eta", 100, -10, 10);
   auto *hEtaTauFit = new TH1F("Fitted Leading Tau Eta", "Fitted Leading Tau Eta", 100, -10, 10);
@@ -276,41 +311,18 @@ void KinFitOutputModule::makeHistograms()
   for (auto unfittedEvent : unfittedEvents)
   {
     fillHistograms(unfittedEvent, hEt, hEta, hPhi, hTauTauInvMass, hBBInvMass);
+    fillKinematicHistogramsByLeg(fittedEvent, 5, "et", hEtB, hEtNTLB);
+    fillKinematicHistogramsByLeg(fittedEvent, 15, "et", hEtTau, hEtNTLTau);
   }
   for (auto fittedEvent : fittedEvents)
   {
     fillHistograms(fittedEvent, hEtFit, hEtaFit, hPhiFit, hTauTauInvMassFit, hBBInvMassFit);
-
-    auto bquarks = fittedEvent.getParticles(5);
-
-    if (bquarks.getNumParticles() == 1)
-    {
-      hEtaBFit->Fill(bquarks.getParticles()[0].Eta());
-      hPhiBFit->Fill(bquarks.getParticles()[0].Phi());
-    }
-    else if (bquarks.getNumParticles() == 2)
-    {
-      if (bquarks.getParticles()[0].Pt() > bquarks.getParticles()[1].Pt())
-      {
-        hEtaBFit->Fill(bquarks.getParticles()[0].Eta());
-        hPhiBFit->Fill(bquarks.getParticles()[0].Phi());
-        hEtaNTLBFit->Fill(bquarks.getParticles()[1].Eta());
-        hPhiNTLBFit->Fill(bquarks.getParticles()[1].Phi());
-      }
-    }
-
-    auto taus = fittedEvent.getParticles(15);
-
-    if (taus.getNumParticles() == 2)
-    {
-      if (taus.getParticles()[0].Pt() > taus.getParticles()[1].Pt())
-      {
-        hEtaTauFit->Fill(taus.getParticles()[0].Eta());
-        hPhiTauFit->Fill(taus.getParticles()[0].Phi());
-        hEtaNTLTauFit->Fill(taus.getParticles()[1].Eta());
-        hPhiNTLTauFit->Fill(taus.getParticles()[1].Phi());
-      }
-    }
+    fillKinematicHistogramsByLeg(fittedEvent, 5, "et", hEtBFit, hEtNTLBFit);
+    fillKinematicHistogramsByLeg(fittedEvent, 5, "eta", hEtaBFit, hEtaNTLBFit);
+    fillKinematicHistogramsByLeg(fittedEvent, 5, "phi", hPhiBFit, hPhiNTLBFit);
+    fillKinematicHistogramsByLeg(fittedEvent, 15, "et", hEtTauFit, hEtNTLTauFit);
+    fillKinematicHistogramsByLeg(fittedEvent, 15, "eta", hEtaTauFit, hEtaNTLTauFit);
+    fillKinematicHistogramsByLeg(fittedEvent, 15, "phi", hPhiTauFit, hPhiNTLTauFit);
   }
 
   // Add

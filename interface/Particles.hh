@@ -33,6 +33,9 @@ public:
   double getInvariantMass();
   double getInvariantMass(int pdgId) {return getParticles(pdgId).getInvariantMass();};
 
+  Particle getLeading(int pdgId);
+  Particle getNextToLeading(int pdgId);
+
 private:
   std::vector<Particle> particles;
 };

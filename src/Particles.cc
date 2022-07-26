@@ -60,3 +60,17 @@ std::vector<int> Particles::getPdgIds()
 
   return pdgIds;
 }
+
+Particle Particles::getLeading(int pdgId)
+{
+  auto relevantParticles = getParticles(pdgId).getParticles();
+  sort(relevantParticles.begin(), relevantParticles.end(), [](Particle &p1, Particle &p2){return p1.Pt() > p2.Pt();});
+  return relevantParticles[0];
+}
+
+Particle Particles::getNextToLeading(int pdgId)
+{
+  auto relevantParticles = getParticles(pdgId).getParticles();
+  sort(relevantParticles.begin(), relevantParticles.end(), [](Particle &p1, Particle &p2){return p1.Pt() > p2.Pt();});
+  return relevantParticles[1];
+}

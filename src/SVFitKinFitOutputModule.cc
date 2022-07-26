@@ -14,39 +14,18 @@ void SVFitKinFitOutputModule::run()
 
 Particles SVFitKinFitOutputModule::fitEvent(Particles event)
 {
-  auto diTauVec = event.getParticleVectors(15)[0];
-  auto bJet1Vec = event.getParticleVectors(5)[0];
-
-  TMatrixD m1(3,3);
-  TMatrixD m2(3,3);
-  m1.Zero();
-  m2.Zero();
-
-  m1(0,0) = ErrEt (diTauVec); // et
-  m1(1,1) = ErrEta(diTauVec); // eta
-  m1(2,2) = ErrPhi(diTauVec); // phi
-  m2(0,0) = ErrEt (bJet1Vec); // et
-  m2(1,1) = ErrEta(bJet1Vec); // eta
-  m2(2,2) = ErrPhi(bJet1Vec); // phi
-
-  TFitParticleEtEtaPhi *diTau = new TFitParticleEtEtaPhi("diTau", "diTau", &diTauVec, &m1);
-  TFitParticleEtEtaPhi *bJet1 = new TFitParticleEtEtaPhi("bJet1", "bJet1", &bJet1Vec, &m2);
+  auto diTauPart = event.getParticles(15)[0];
+  auto bJet1Part = event.getParticles(5)[0];
+  auto diTau = convertParticle(diTauPart);
+  auto bJet1 = convertParticle(bJet1Part);
 
   std::vector<TFitParticleEtEtaPhi*> particles = {diTau, bJet1};
   std::vector<TFitConstraintM*> constraints;
 
   if (event.getNumParticles(5) == 2)  // Do everything including the second b-jet
   {
-    auto bJet2Vec = event.getParticleVectors(5)[1];
-    
-    TMatrixD m3(3,3);
-    m3.Zero();
-    
-    m3(0,0) = ErrEt (bJet2Vec); // et
-    m3(1,1) = ErrEta(bJet2Vec); // eta
-    m3(2,2) = ErrPhi(bJet2Vec); // phi
-
-    TFitParticleEtEtaPhi *bJet2 = new TFitParticleEtEtaPhi("bJet2", "bJet2", &bJet2Vec, &m3);
+    auto bJet2Part = event.getParticles(5)[1];
+    auto bJet2 = convertParticle(bJet2Part);
 
     // bJet1 and bJet2 must make an a pseudoscalar: this only happens when there is a second b-jet
     TFitConstraintM *mCons1 = new TFitConstraintM("AMassConstraint2", "AMass-Constraint2", 0, 0, 45.);
@@ -90,7 +69,7 @@ Particles SVFitKinFitOutputModule::fitEvent(Particles event)
   // print(fitter);
   
   Particles params;
-  params.addParticle(diTauVec, 15);
+  params.addParticle(diTauPart);
   
   for (unsigned long int i; i < particles.size(); i++)
   {
