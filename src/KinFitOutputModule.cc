@@ -290,14 +290,14 @@ void KinFitOutputModule::makeHistograms()
   auto *hBBInvMassFit = new TH1F("Fitted BB Invariant Mass", "Fitted BB Invariant Mass", 100, 0, 200);
 
   // Initialize the debug/test histograms
-  auto *hEtB = new TH1F("Unfitted Leading b-quark Transverse Energy", "Unfitted Leading b-quark Transverse Energy", 100, -10, 10);
-  auto *hEtNTLB = new TH1F("Unfitted Next-To-Leading b-quark Transverse Energy", "Unfitted Next-To-Leading b-quark Transverse Energy", 100, -10, 10);
+  auto *hEtB = new TH1F("Unfitted Leading b-quark Transverse Energy", "Unfitted Leading b-quark Transverse Energy", 100, 0, 200);
+  auto *hEtNTLB = new TH1F("Unfitted Next-To-Leading b-quark Transverse Energy", "Unfitted Next-To-Leading b-quark Transverse Energy", 100, 0, 200);
   auto *hEtTau = new TH1F("Unfitted Leading Tau Transverse Energy", "Unfitted Leading Tau Transverse Energy", 100, -10, 10);
-  auto *hEtNTLTau = new TH1F("Unfitted Next-To-Leading Tau Transverse Energy", "Unfitted Next-To-Leading Tau Transverse Energy", 100, -10, 10);
-  auto *hEtBFit = new TH1F("Fitted Leading b-quark Transverse Energy", "Fitted Leading b-quark Transverse Energy", 100, -10, 10);
-  auto *hEtNTLBFit = new TH1F("Fitted Next-To-Leading b-quark Transverse Energy", "Fitted Next-To-Leading b-quark Transverse Energy", 100, -10, 10);
-  auto *hEtTauFit = new TH1F("Fitted Leading Tau Transverse Energy", "Fitted Leading Tau Transverse Energy", 100, -10, 10);
-  auto *hEtNTLTauFit = new TH1F("Fitted Next-To-Leading Tau Transverse Energy", "Fitted Next-To-Leading Tau Transverse Energy", 100, -10, 10);
+  auto *hEtNTLTau = new TH1F("Unfitted Next-To-Leading Tau Transverse Energy", "Unfitted Next-To-Leading Tau Transverse Energy", 100, 0, 200);
+  auto *hEtBFit = new TH1F("Fitted Leading b-quark Transverse Energy", "Fitted Leading b-quark Transverse Energy", 100, 0, 200);
+  auto *hEtNTLBFit = new TH1F("Fitted Next-To-Leading b-quark Transverse Energy", "Fitted Next-To-Leading b-quark Transverse Energy", 100, 0, 200);
+  auto *hEtTauFit = new TH1F("Fitted Leading Tau Transverse Energy", "Fitted Leading Tau Transverse Energy", 100, 0, 200);
+  auto *hEtNTLTauFit = new TH1F("Fitted Next-To-Leading Tau Transverse Energy", "Fitted Next-To-Leading Tau Transverse Energy", 100, 0, 200);
   auto *hEtaBFit = new TH1F("Fitted Leading b-quark Eta", "Fitted Leading b-quark Eta", 100, -10, 10);
   auto *hEtaNTLBFit = new TH1F("Fitted Next-To-Leading b-quark Eta", "Fitted Next-To-Leading b-quark Eta", 100, -10, 10);
   auto *hEtaTauFit = new TH1F("Fitted Leading Tau Eta", "Fitted Leading Tau Eta", 100, -10, 10);
