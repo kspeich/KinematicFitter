@@ -298,11 +298,11 @@ void KinFitOutputModule::makeHistograms()
   auto *hEtNTLBFit = new TH1F("Fitted Next-To-Leading b-quark Transverse Energy", "Fitted Next-To-Leading b-quark Transverse Energy", 100, 0, 200);
   auto *hEtTauFit = new TH1F("Fitted Leading Tau Transverse Energy", "Fitted Leading Tau Transverse Energy", 100, 0, 200);
   auto *hEtNTLTauFit = new TH1F("Fitted Next-To-Leading Tau Transverse Energy", "Fitted Next-To-Leading Tau Transverse Energy", 100, 0, 200);
-  auto *hEtaBFit = new TH1F("Fitted Leading b-quark Eta", "Fitted Leading b-quark Eta", 100, -10, 10);
-  auto *hEtaNTLBFit = new TH1F("Fitted Next-To-Leading b-quark Eta", "Fitted Next-To-Leading b-quark Eta", 100, -10, 10);
-  auto *hEtaTauFit = new TH1F("Fitted Leading Tau Eta", "Fitted Leading Tau Eta", 100, -10, 10);
-  auto *hEtaNTLTauFit = new TH1F("Fitted Next-To-Leading Tau Eta", "Fitted Next-To-Leading Tau Eta", 100, -10, 10);
-  auto *hPhiBFit = new TH1F("Fitted Leading b-quark Phi", "Fitted Leading b-quark Phi", 100, -4, 4);
+  auto *hEtaBFit = new TH1F("Fitted Leading b-quark Pseudorapidity", "Fitted Leading b-quark Pseudorapidity", 100, -10, 10);
+  auto *hEtaNTLBFit = new TH1F("Fitted Next-To-Leading b-quark Pseudorapidity", "Fitted Next-To-Leading b-quark Pseudorapidity", 100, -10, 10);
+  auto *hEtaTauFit = new TH1F("Fitted Leading Tau Pseudorapidity", "Fitted Leading Tau Pseudorapidity", 100, -10, 10);
+  auto *hEtaNTLTauFit = new TH1F("Fitted Next-To-Leading Tau Pseudorapidity", "Fitted Next-To-Leading Tau Pseudorapidity", 100, -10, 10);
+  auto *hPhiBFit = new TH1F("Fitted Leading b-quark Pseudorapidity", "Fitted Leading b-quark Pseudorapidity", 100, -4, 4);
   auto *hPhiNTLBFit = new TH1F("Fitted Next-To-Leading b-quark Phi", "Fitted Next-To-Leading b-quark Phi", 100, -4, 4);
   auto *hPhiTauFit = new TH1F("Fitted Leading Tau Phi", "Fitted Leading Tau Phi", 100, -4, 4);
   auto *hPhiNTLTauFit = new TH1F("Fitted Next-To-Leading Tau Phi", "Fitted Next-To-Leading Tau Phi", 100, -4, 4);
@@ -326,7 +326,7 @@ void KinFitOutputModule::makeHistograms()
   }
 
   // Add
-  histograms = {hEt, hEta, hPhi, hTauTauInvMass, hBBInvMass, hEtFit, hEtaFit, hPhiFit, hTauTauInvMassFit, hBBInvMassFit, hEtaBFit, hEtaNTLBFit, hPhiBFit, hPhiNTLBFit, hEtaTauFit, hEtaNTLTauFit, hPhiTauFit, hPhiNTLTauFit};
+  histograms = {hEt, hEta, hPhi, hTauTauInvMass, hBBInvMass, hEtFit, hEtaFit, hPhiFit, hTauTauInvMassFit, hBBInvMassFit, hEtB, hEtNTLB, hEtTau, hEtNTLTau, hEtBFit, hEtNTLBFit, hEtTauFit, hEtNTLTauFit, hEtaBFit, hEtaNTLBFit, hEtaTauFit, hEtaNTLTauFit, hPhiBFit, hPhiNTLBFit, hPhiTauFit, hPhiNTLTauFit};
 }
 
 void KinFitOutputModule::drawHistograms()
