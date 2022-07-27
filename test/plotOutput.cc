@@ -16,7 +16,7 @@ void overlayPlots(std::string canvasName, std::string xAxis, std::string yAxis, 
 void plotKinematics(TFile* file, std::string process, bool svFit = false);
 void plotInvariantMasses(TFile* signalKinFitHistograms, TFile* dyJetsKinFitHistograms, TFile* ttLeptonicKinFitHistograms, TFile* ttSemiLeptonicKinFitHistograms, bool svFit = false);
 void compareInvariantMasses(TFile* signalKinFitHistograms, TFile* svFitSignalKinFitHistograms, TFile* dyJetsKinFitHistograms, TFile* svFitDYJetsKinFitHistograms, TFile* ttLeptonicKinFitHistograms, TFile* svFitTTLeptonicKinFitHistograms, TFile* ttSemiLeptonicKinFitHistograms, TFile* svFitTTSemiLeptonicKinFitHistograms, bool kinFit);
-void compareLegs(TFile* file, std::string process, bool svFit = false);
+void compareLegs(TFile* file, std::string process, bool svFit = false, bool kinFit = false);
 
 void plotOutput()
 {
@@ -32,16 +32,17 @@ void plotOutput()
   TFile* svFitTTLeptonic = TFile::Open("Histograms/RecoSVFitTTLeptonicKinFitHistograms.root");
   TFile* svFitTTSemiLeptonic = TFile::Open("Histograms/RecoSVFitTTSemiLeptonicKinFitHistograms.root");
 
-  plotKinematics(recoSignal, "H->aa->bbtautau");
-  plotInvariantMasses(recoSignal, recoDYJets, recoTTLeptonic, recoTTSemiLeptonic);
-  plotKinematics(svFitSignal, "H->aa->bbtautau", true);
-  plotInvariantMasses(svFitSignal, svFitDYJets, svFitTTLeptonic, svFitTTSemiLeptonic, true);
-  compareInvariantMasses(recoSignal, svFitSignal, recoDYJets, svFitDYJets, recoTTLeptonic, svFitTTLeptonic, recoTTSemiLeptonic, svFitTTSemiLeptonic, false);
-  compareInvariantMasses(recoSignal, svFitSignal, recoDYJets, svFitDYJets, recoTTLeptonic, svFitTTLeptonic, recoTTSemiLeptonic, svFitTTSemiLeptonic, true);
+  //plotKinematics(recoSignal, "H->aa->bbtautau");
+  //plotInvariantMasses(recoSignal, recoDYJets, recoTTLeptonic, recoTTSemiLeptonic);
+  //plotKinematics(svFitSignal, "H->aa->bbtautau", true);
+  //plotInvariantMasses(svFitSignal, svFitDYJets, svFitTTLeptonic, svFitTTSemiLeptonic, true);
+  //compareInvariantMasses(recoSignal, svFitSignal, recoDYJets, svFitDYJets, recoTTLeptonic, svFitTTLeptonic, recoTTSemiLeptonic, svFitTTSemiLeptonic, false);
+  //compareInvariantMasses(recoSignal, svFitSignal, recoDYJets, svFitDYJets, recoTTLeptonic, svFitTTLeptonic, recoTTSemiLeptonic, svFitTTSemiLeptonic, true);
   compareLegs(recoSignal, "H->aa->bbtautau");
+  compareLegs(recoSignal, "H->aa->bbtautau", false, true);
   compareLegs(svFitSignal, "H->aa->bbtautau", true);
-
-  overlayPlots("H->aa->bbtautau Transverse Energy by Particle (Unfitted SVFit Reco)", "Transverse Energy (GeV)", "Number of Events", {svFitSignal, svFitSignal, svFitSignal}, {"Unfitted Leading b-quark Transverse Energy;1", "Unfitted Next-To-Leading b-quark Transverse Energy;1", "Unfitted Leading Tau Transverse Energy;1"}, {"Leading b-quark", "Next-To-Leading b-quark", "Di-Tau"}, {kBlue, kRed, kGreen});
+  compareLegs(svFitSignal, "H->aa->bbtautau", true, true);
+  compareLegs(svFitDYJets, "DY Jets", true);
 }
 
 void overlayPlots(std::string canvasName, std::string xAxis, std::string yAxis, std::vector<TFile*> files, std::vector<std::string> histNames, std::vector<std::string> legends, std::vector<Color_t> colors)
@@ -148,28 +149,37 @@ void compareInvariantMasses(TFile* signalKinFitHistograms, TFile* svFitSignalKin
   overlayPlots("TT Semi-Leptonic BB Invariant Mass " + suffix, "Invariant Mass (GeV)", "Number of Events", {ttSemiLeptonicKinFitHistograms, svFitTTSemiLeptonicKinFitHistograms}, bbHistNames, {"Reco", "SVFit"}, {kBlue, kRed});
 }
 
-void compareLegs(TFile* file, std::string process, bool svFit)
+void compareLegs(TFile* file, std::string process, bool svFit, bool kinFit)
 {
-  std::string suffix = "(Fitted Reco)";
+  std::string prefix = "Unfitted ";
+  if (kinFit)
+  {
+    prefix = "Fitted ";
+  }
+
+  std::string suffix = "(" + prefix + "Reco)";
   std::vector<std::string> legends = {"Leading b-quark", "Next-To-Leading b-quark", "Leading Tau", "Next-To-Leading Tau"};
   std::vector<TFile*> files = {file, file, file, file};
   std::vector<Color_t> colors = {kBlue, kRed, kGreen, kGray};
-  std::vector<std::string> etHistNames = {"Fitted Leading b-quark Transverse Energy;1", "Fitted Next-To-Leading b-quark Transverse Energy;1", "Fitted Leading Tau Transverse Energy;1", "Fitted Next-To-Leading Tau Transverse Energy;1"};
-  std::vector<std::string> etaHistNames = {"Fitted Leading b-quark Pseudorapidity;1", "Fitted Next-To-Leading b-quark Pseudorapidity;1", "Fitted Leading Tau Pseudorapidity;1", "Fitted Next-To-Leading Tau Pseudorapidity;1"};
-  std::vector<std::string> phiHistNames = {"Fitted Leading b-quark Phi;1", "Fitted Next-To-Leading b-quark Phi;1", "Fitted Leading Tau Phi;1", "Fitted Next-To-Leading Tau Phi;1"};
+  std::vector<std::string> etHistNames = {prefix + "Leading b-quark Transverse Energy;1", prefix + "Next-To-Leading b-quark Transverse Energy;1", prefix + "Leading Tau Transverse Energy;1", prefix + "Next-To-Leading Tau Transverse Energy;1"};
+  std::vector<std::string> etaHistNames = {prefix + "Leading b-quark Pseudorapidity;1", prefix + "Next-To-Leading b-quark Pseudorapidity;1", prefix + "Leading Tau Pseudorapidity;1", prefix + "Next-To-Leading Tau Pseudorapidity;1"};
+  std::vector<std::string> phiHistNames = {prefix + "Leading b-quark Phi;1", prefix + "Next-To-Leading b-quark Phi;1", prefix + "Leading Tau Phi;1", prefix + "Next-To-Leading Tau Phi;1"};
+  std::vector<std::string> massHistNames = {prefix + "Leading b-quark Mass;1", prefix + "Next-To-Leading b-quark Mass;1", prefix + "Leading Tau Mass;1", prefix + "Next-To-Leading Tau Mass;1"};
 
   if (svFit)
   {
-    suffix = "(Fitted SVFit Reco)";
+    suffix = "(" + prefix + "SVFit Reco)";
     legends = {"Leading b-quark", "Next-To-Leading b-quark", "Di-Tau"};
     files.pop_back();
     colors.pop_back();
     etHistNames.pop_back();
     etaHistNames.pop_back();
     phiHistNames.pop_back();
+    massHistNames.pop_back();
   }
 
   overlayPlots(process + " Transverse Energy by Particle " + suffix, "Transverse Energy (GeV)", "Number of Events", files, etHistNames, legends, colors);
   overlayPlots(process + " Pseudorapidity by Particle " + suffix, "Pseudorapidity", "Number of Events", files, etaHistNames, legends, colors);
   overlayPlots(process + " Phi by Particle " + suffix, "Phi", "Number of Events", files, phiHistNames, legends, colors);
+  overlayPlots(process + " Mass by Particle " + suffix, "Mass (GeV)", "Number of Events", files, massHistNames, legends, colors);
 }
