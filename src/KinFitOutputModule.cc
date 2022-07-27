@@ -302,7 +302,7 @@ void KinFitOutputModule::makeHistograms()
   auto *hEtaNTLBFit = new TH1F("Fitted Next-To-Leading b-quark Pseudorapidity", "Fitted Next-To-Leading b-quark Pseudorapidity", 100, -10, 10);
   auto *hEtaTauFit = new TH1F("Fitted Leading Tau Pseudorapidity", "Fitted Leading Tau Pseudorapidity", 100, -10, 10);
   auto *hEtaNTLTauFit = new TH1F("Fitted Next-To-Leading Tau Pseudorapidity", "Fitted Next-To-Leading Tau Pseudorapidity", 100, -10, 10);
-  auto *hPhiBFit = new TH1F("Fitted Leading b-quark Pseudorapidity", "Fitted Leading b-quark Pseudorapidity", 100, -4, 4);
+  auto *hPhiBFit = new TH1F("Fitted Leading b-quark Phi", "Fitted Leading b-quark Phi", 100, -4, 4);
   auto *hPhiNTLBFit = new TH1F("Fitted Next-To-Leading b-quark Phi", "Fitted Next-To-Leading b-quark Phi", 100, -4, 4);
   auto *hPhiTauFit = new TH1F("Fitted Leading Tau Phi", "Fitted Leading Tau Phi", 100, -4, 4);
   auto *hPhiNTLTauFit = new TH1F("Fitted Next-To-Leading Tau Phi", "Fitted Next-To-Leading Tau Phi", 100, -4, 4);
