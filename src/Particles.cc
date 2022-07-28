@@ -37,6 +37,22 @@ Particles Particles::getParticles(int pdgId)
   return specificParticles;
 }
 
+Particles Particles::getParticles(int pdgId, std::string tag)
+{
+  Particles tagParticles;
+
+  for (auto particle : getParticles(pdgId).getParticles())
+  {
+    if (particle.containsTag(tag))
+    {
+      tagParticles.addParticle(particle);
+    }
+  }
+
+  return tagParticles;
+}
+
+
 std::vector<TLorentzVector> Particles::getParticleVectors()
 {
   std::vector<TLorentzVector> particleVectors;

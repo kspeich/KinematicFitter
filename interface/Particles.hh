@@ -22,6 +22,7 @@ public:
 
   std::vector<Particle> getParticles() {return particles;};
   Particles getParticles(int pdgId);
+  Particles getParticles(int pdgId, std::string tag);
   std::vector<TLorentzVector> getParticleVectors();
   std::vector<TLorentzVector> getParticleVectors(int pdgId) {return getParticles(pdgId).getParticleVectors();};
 

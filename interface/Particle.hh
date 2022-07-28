@@ -13,6 +13,10 @@ public:
 
   TLorentzVector getFourVector() {return fourVector;};
   int getPdgId() {return pdgId;};
+  std::vector<std::string> getTags() {return tags;};
+
+  void addTag(std::string tag) {tags.push_back(tag);};
+  bool containsTag(std::string tag);
 
   double Pt() {return fourVector.Pt();};
   double Et() {return fourVector.Et();};
@@ -23,6 +27,7 @@ public:
 private:
   TLorentzVector fourVector;
   int pdgId;
+  std::vector<std::string> tags;
 };
 
 #endif
