@@ -13,12 +13,12 @@ class Particles
 public:
   Particles() {};
   Particles(std::vector<Particle> iParticles) : particles(iParticles) {};
-  virtual ~Particles() {};
+  ~Particles() {};
 
   Particle operator[](const int i) {return particles[i];};
 
   void addParticle(Particle particle) {particles.push_back(particle);};
-  void addParticle(TLorentzVector particle, int pdgId);
+  void addParticle(TLorentzVector particle, int pdgId, std::vector<std::string> tags = {});
 
   std::vector<Particle> getParticles() {return particles;};
   Particles getParticles(int pdgId);

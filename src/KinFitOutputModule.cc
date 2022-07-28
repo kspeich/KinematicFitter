@@ -76,8 +76,8 @@ TFitParticleEtEtaPhi* KinFitOutputModule::convertParticle(Particle particle)
 
 Particles KinFitOutputModule::fitEvent(Particles event)
 {
-  auto mTauPart = event.getParticles(15)[0];
-  auto hTauPart = event.getParticles(15)[1];
+  auto mTauPart = event.getParticles(15, "muonic")[0];
+  auto hTauPart = event.getParticles(15, "hadronic")[0];
   auto bJet1Part = event.getParticles(5)[0];
 
   auto mTau = convertParticle(mTauPart);
@@ -135,7 +135,7 @@ Particles KinFitOutputModule::fitEvent(Particles event)
   
   Particles params;
   
-  for (unsigned long int i; i < particles.size(); i++)
+  for (unsigned long int i = 0; i < particles.size(); i++)
   {
     auto fittedValues = particles[i]->getParCurr();
     int pdgId = event.getPdgIds()[i];
@@ -200,13 +200,13 @@ void KinFitOutputModule::runFitter()
     TLorentzVector v1, v2, v3, v4;
     Particles particles;
 
-    v1.SetPtEtaPhiM(pt1, eta1, phi1, m1);  // v1 contains the values of the (muonic) tau
-    v2.SetPtEtaPhiM(pt2, eta2, phi2, m2);  // v2 contains the values of the (hadronic) tau
+    v1.SetPtEtaPhiM(pt1, eta1, phi1, m1);  // v1 contains the values of the muonic tau
+    v2.SetPtEtaPhiM(pt2, eta2, phi2, m2);  // v2 contains the values of the hadronic tau
     v3.SetPtEtaPhiM(pt3, eta3, phi3, m3);  // v3 contains the values of the first b-jet
 
     // The PDGIDs here represent that the particles are taus and b's, but do not indicate whether they are anti-taus or anti-b's
-    particles.addParticle(v1, 15);
-    particles.addParticle(v2, 15);
+    particles.addParticle(v1, 15, {"muonic"});
+    particles.addParticle(v2, 15, {"hadronic"});
     particles.addParticle(v3, 5);
 
     if (pt4 != -9999 && eta4 != -9999 && phi4 != -9999 && m4 != -9999)
@@ -237,47 +237,50 @@ void KinFitOutputModule::fillHistograms(Particles event, TH1F* hEt, TH1F* hEta, 
   }
 }
 
-void KinFitOutputModule::fillKinematicHistogramsByLeg(Particles event, int pdgId, std::string kinematic, TH1F* hLeading, TH1F* hNTL)
+void KinFitOutputModule::fillHistogramOneParticle(Particle particle, std::string kinematic, TH1F* h)
 {
-  auto particles = event.getParticles(pdgId);
-  auto leading = event.getLeading(pdgId);
-
   if (kinematic == "et")
   {
-    hLeading->Fill(leading.Et());
+    h->Fill(particle.Et());
   }
   else if (kinematic == "eta")
   {
-    hLeading->Fill(leading.Eta());
+    h->Fill(particle.Eta());
   }
   else if (kinematic == "phi")
   {
-    hLeading->Fill(leading.Phi());
+    h->Fill(particle.Phi());
   }
   else if (kinematic == "m")
   {
-    hLeading->Fill(leading.M());
+    h->Fill(particle.M());
+  }
+}
+
+void KinFitOutputModule::fillKinematicHistogramsByLeg(Particles event, std::string kinematic, TH1F* hLeadingB, TH1F* hNTLB, TH1F* hMTau, TH1F* hHTau)
+{
+  auto bquarks = event.getParticles(5);
+  auto leadingB = event.getLeading(5);
+  fillHistogramOneParticle(leadingB, kinematic, hLeadingB);
+
+  if (bquarks.getNumParticles() >= 2)
+  {
+    auto nextToLeadingB = event.getNextToLeading(5);
+    fillHistogramOneParticle(nextToLeadingB, kinematic, hNTLB);
   }
 
-  if (hNTL != nullptr && event.getNumParticles(pdgId) >= 2)
+  auto mTaus = event.getParticles(15, "muonic");
+  auto hTaus = event.getParticles(15, "hadronic");
+
+  if (mTaus.getNumParticles() >= 1)
   {
-    auto nextToLeading = event.getNextToLeading(pdgId);
-    if (kinematic == "et")
-    {
-      hNTL->Fill(nextToLeading.Et());
-    }
-    else if (kinematic == "eta")
-    {
-      hNTL->Fill(nextToLeading.Eta());
-    }
-    else if (kinematic == "phi")
-    {
-      hNTL->Fill(nextToLeading.Phi());
-    }
-    else if (kinematic == "m")
-    {
-      hNTL->Fill(nextToLeading.M());
-    }
+    auto mTau = mTaus[0];
+    fillHistogramOneParticle(mTau, kinematic, hMTau);
+  }
+  if (hTaus.getNumParticles() >= 1)
+  {
+    auto hTau = hTaus[0];
+    fillHistogramOneParticle(hTau, kinematic, hHTau);
   }
 }
 
@@ -300,72 +303,64 @@ void KinFitOutputModule::makeHistograms()
   // Initialize the debug/test histograms
   auto *hEtB = new TH1F("Unfitted Leading b-quark Transverse Energy", "Unfitted Leading b-quark Transverse Energy", 100, 0, 200);
   auto *hEtNTLB = new TH1F("Unfitted Next-To-Leading b-quark Transverse Energy", "Unfitted Next-To-Leading b-quark Transverse Energy", 100, 0, 200);
-  auto *hEtTau = new TH1F("Unfitted Leading Tau Transverse Energy", "Unfitted Leading Tau Transverse Energy", 100, 0, 200);
-  auto *hEtNTLTau = new TH1F("Unfitted Next-To-Leading Tau Transverse Energy", "Unfitted Next-To-Leading Tau Transverse Energy", 100, 0, 200);
+  auto *hEtMTau = new TH1F("Unfitted Muonic Tau Transverse Energy", "Unfitted Muonic Tau Transverse Energy", 100, 0, 200);
+  auto *hEtHTau = new TH1F("Unfitted Hadronic Tau Transverse Energy", "Unfitted Hadronic Tau Transverse Energy", 100, 0, 200);
 
   auto *hEtBFit = new TH1F("Fitted Leading b-quark Transverse Energy", "Fitted Leading b-quark Transverse Energy", 100, 0, 200);
   auto *hEtNTLBFit = new TH1F("Fitted Next-To-Leading b-quark Transverse Energy", "Fitted Next-To-Leading b-quark Transverse Energy", 100, 0, 200);
-  auto *hEtTauFit = new TH1F("Fitted Leading Tau Transverse Energy", "Fitted Leading Tau Transverse Energy", 100, 0, 200);
-  auto *hEtNTLTauFit = new TH1F("Fitted Next-To-Leading Tau Transverse Energy", "Fitted Next-To-Leading Tau Transverse Energy", 100, 0, 200);
+  auto *hEtMTauFit = new TH1F("Fitted Muonic Tau Transverse Energy", "Fitted Muonic Tau Transverse Energy", 100, 0, 200);
+  auto *hEtHTauFit = new TH1F("Fitted Hadronic Tau Transverse Energy", "Fitted Hadronic Tau Transverse Energy", 100, 0, 200);
 
   auto *hEtaB = new TH1F("Unfitted Leading b-quark Pseudorapidity", "Unfitted Leading b-quark Pseudorapidity", 100, -10, 10);
   auto *hEtaNTLB = new TH1F("Unfitted Next-To-Leading b-quark Pseudorapidity", "Unfitted Next-To-Leading b-quark Pseudorapidity", 100, -10, 10);
-  auto *hEtaTau = new TH1F("Unfitted Leading Tau Pseudorapidity", "Unfitted Leading Tau Pseudorapidity", 100, -10, 10);
-  auto *hEtaNTLTau = new TH1F("Unfitted Next-To-Leading Tau Pseudorapidity", "Unfitted Next-To-Leading Tau Pseudorapidity", 100, -10, 10);
+  auto *hEtaMTau = new TH1F("Unfitted Muonic Tau Pseudorapidity", "Unfitted Muonic Tau Pseudorapidity", 100, -10, 10);
+  auto *hEtaHTau = new TH1F("Unfitted Hadronic Tau Pseudorapidity", "Unfitted Hadronic Tau Pseudorapidity", 100, -10, 10);
 
   auto *hEtaBFit = new TH1F("Fitted Leading b-quark Pseudorapidity", "Fitted Leading b-quark Pseudorapidity", 100, -10, 10);
   auto *hEtaNTLBFit = new TH1F("Fitted Next-To-Leading b-quark Pseudorapidity", "Fitted Next-To-Leading b-quark Pseudorapidity", 100, -10, 10);
-  auto *hEtaTauFit = new TH1F("Fitted Leading Tau Pseudorapidity", "Fitted Leading Tau Pseudorapidity", 100, -10, 10);
-  auto *hEtaNTLTauFit = new TH1F("Fitted Next-To-Leading Tau Pseudorapidity", "Fitted Next-To-Leading Tau Pseudorapidity", 100, -10, 10);
+  auto *hEtaMTauFit = new TH1F("Fitted Muonic Tau Pseudorapidity", "Fitted Muonic Tau Pseudorapidity", 100, -10, 10);
+  auto *hEtaHTauFit = new TH1F("Fitted Hadronic Tau Pseudorapidity", "Fitted Hadronic Tau Pseudorapidity", 100, -10, 10);
 
   auto *hPhiB = new TH1F("Unfitted Leading b-quark Phi", "Unfitted Leading b-quark Phi", 100, -4, 4);
   auto *hPhiNTLB = new TH1F("Unfitted Next-To-Leading b-quark Phi", "Unfitted Next-To-Leading b-quark Phi", 100, -4, 4);
-  auto *hPhiTau = new TH1F("Unfitted Leading Tau Phi", "Unfitted Leading Tau Phi", 100, -4, 4);
-  auto *hPhiNTLTau = new TH1F("Unfitted Next-To-Leading Tau Phi", "Unfitted Next-To-Leading Tau Phi", 100, -4, 4);
+  auto *hPhiMTau = new TH1F("Unfitted Muonic Tau Phi", "Unfitted Muonic Tau Phi", 100, -4, 4);
+  auto *hPhiHTau = new TH1F("Unfitted Hadronic Tau Phi", "Unfitted Hadronic Tau Phi", 100, -4, 4);
 
   auto *hPhiBFit = new TH1F("Fitted Leading b-quark Phi", "Fitted Leading b-quark Phi", 100, -4, 4);
   auto *hPhiNTLBFit = new TH1F("Fitted Next-To-Leading b-quark Phi", "Fitted Next-To-Leading b-quark Phi", 100, -4, 4);
-  auto *hPhiTauFit = new TH1F("Fitted Leading Tau Phi", "Fitted Leading Tau Phi", 100, -4, 4);
-  auto *hPhiNTLTauFit = new TH1F("Fitted Next-To-Leading Tau Phi", "Fitted Next-To-Leading Tau Phi", 100, -4, 4);
+  auto *hPhiMTauFit = new TH1F("Fitted Muonic Tau Phi", "Fitted Muonic Tau Phi", 100, -4, 4);
+  auto *hPhiHTauFit = new TH1F("Fitted Hadronic Tau Phi", "Fitted Hadronic Tau Phi", 100, -4, 4);
 
-  auto *hMB = new TH1F("Unfitted Leading b-quark Mass", "Unfitted Leading b-quark Mass", 100, 0, 25);
-  auto *hMNTLB = new TH1F("Unfitted Next-To-Leading b-quark Mass", "Unfitted Next-To-Leading b-quark Mass", 100, 0, 25);
-  auto *hMTau = new TH1F("Unfitted Leading Tau Mass", "Unfitted Leading Tau Mass", 100, 0, 25);
-  auto *hMNTLTau = new TH1F("Unfitted Next-To-Leading Tau Mass", "Unfitted Next-To-Leading Tau Mass", 100, 0, 25);
+  auto *hMB = new TH1F("Unfitted Leading b-quark Mass", "Unfitted Leading b-quark Mass", 100, 0, 200);
+  auto *hMNTLB = new TH1F("Unfitted Next-To-Leading b-quark Mass", "Unfitted Next-To-Leading b-quark Mass", 100, 0, 200);
+  auto *hMMTau = new TH1F("Unfitted Muonic Tau Mass", "Unfitted Muonic Tau Mass", 100, 0, 200);
+  auto *hMHTau = new TH1F("Unfitted Hadronic Tau Mass", "Unfitted Hadronic Tau Mass", 100, 0, 200);
 
-  auto *hMBFit = new TH1F("Fitted Leading b-quark Mass", "Fitted Leading b-quark Mass", 100, 0, 25);
-  auto *hMNTLBFit = new TH1F("Fitted Next-To-Leading b-quark Mass", "Fitted Next-To-Leading b-quark Mass", 100, 0, 25);
-  auto *hMTauFit = new TH1F("Fitted Leading Tau Mass", "Fitted Leading Tau Mass", 100, 0, 25);
-  auto *hMNTLTauFit = new TH1F("Fitted Next-To-Leading Tau Mass", "Fitted Next-To-Leading Tau Mass", 100, 0, 25);
+  auto *hMBFit = new TH1F("Fitted Leading b-quark Mass", "Fitted Leading b-quark Mass", 100, 0, 200);
+  auto *hMNTLBFit = new TH1F("Fitted Next-To-Leading b-quark Mass", "Fitted Next-To-Leading b-quark Mass", 100, 0, 200);
+  auto *hMMTauFit = new TH1F("Fitted Muonic Tau Mass", "Fitted Muonic Tau Mass", 100, 0, 200);
+  auto *hMHTauFit = new TH1F("Fitted Hadronic Tau Mass", "Fitted Hadronic Tau Mass", 100, 0, 200);
 
   // Fill the histograms
   for (auto unfittedEvent : unfittedEvents)
   {
     fillHistograms(unfittedEvent, hEt, hEta, hPhi, hTauTauInvMass, hBBInvMass);
-    fillKinematicHistogramsByLeg(unfittedEvent, 5, "et", hEtB, hEtNTLB);
-    fillKinematicHistogramsByLeg(unfittedEvent, 5, "eta", hEtaB, hEtaNTLB);
-    fillKinematicHistogramsByLeg(unfittedEvent, 5, "phi", hPhiB, hPhiNTLB);
-    fillKinematicHistogramsByLeg(unfittedEvent, 5, "m", hMB, hMNTLB);
-    fillKinematicHistogramsByLeg(unfittedEvent, 15, "et", hEtTau, hEtNTLTau);
-    fillKinematicHistogramsByLeg(unfittedEvent, 15, "eta", hEtaTau, hEtaNTLTau);
-    fillKinematicHistogramsByLeg(unfittedEvent, 15, "phi", hPhiTau, hPhiNTLTau);
-    fillKinematicHistogramsByLeg(unfittedEvent, 15, "m", hMTau, hMNTLTau);
+    fillKinematicHistogramsByLeg(unfittedEvent, "et", hEtB, hEtNTLB, hEtMTau, hEtHTau);
+    fillKinematicHistogramsByLeg(unfittedEvent, "eta", hEtaB, hEtaNTLB, hEtaMTau, hEtaHTau);
+    fillKinematicHistogramsByLeg(unfittedEvent, "phi", hPhiB, hPhiNTLB, hPhiMTau, hPhiHTau);
+    fillKinematicHistogramsByLeg(unfittedEvent, "m", hMB, hMNTLB, hMMTau, hMHTau);
   }
   for (auto fittedEvent : fittedEvents)
   {
     fillHistograms(fittedEvent, hEtFit, hEtaFit, hPhiFit, hTauTauInvMassFit, hBBInvMassFit);
-    fillKinematicHistogramsByLeg(fittedEvent, 5, "et", hEtBFit, hEtNTLBFit);
-    fillKinematicHistogramsByLeg(fittedEvent, 5, "eta", hEtaBFit, hEtaNTLBFit);
-    fillKinematicHistogramsByLeg(fittedEvent, 5, "phi", hPhiBFit, hPhiNTLBFit);    
-    fillKinematicHistogramsByLeg(fittedEvent, 5, "m", hMBFit, hMNTLBFit);
-    fillKinematicHistogramsByLeg(fittedEvent, 15, "et", hEtTauFit, hEtNTLTauFit);
-    fillKinematicHistogramsByLeg(fittedEvent, 15, "eta", hEtaTauFit, hEtaNTLTauFit);
-    fillKinematicHistogramsByLeg(fittedEvent, 15, "phi", hPhiTauFit, hPhiNTLTauFit);
-    fillKinematicHistogramsByLeg(fittedEvent, 15, "m", hMTauFit, hMNTLTauFit);
+    fillKinematicHistogramsByLeg(fittedEvent, "et", hEtBFit, hEtNTLBFit, hEtMTauFit, hEtHTauFit);
+    fillKinematicHistogramsByLeg(fittedEvent, "eta", hEtaBFit, hEtaNTLBFit, hEtaMTauFit, hEtaHTauFit);
+    fillKinematicHistogramsByLeg(fittedEvent, "phi", hPhiBFit, hPhiNTLBFit, hPhiMTauFit, hPhiHTauFit);    
+    fillKinematicHistogramsByLeg(fittedEvent, "m", hMBFit, hMNTLBFit, hMMTauFit, hMHTauFit);
   }
 
   // Add
-  histograms = {hEt, hEta, hPhi, hTauTauInvMass, hBBInvMass, hEtFit, hEtaFit, hPhiFit, hTauTauInvMassFit, hBBInvMassFit, hEtB, hEtNTLB, hEtTau, hEtNTLTau, hEtBFit, hEtNTLBFit, hEtTauFit, hEtNTLTauFit, hEtaB, hEtaNTLB, hEtaTau, hEtaNTLTau, hEtaBFit, hEtaNTLBFit, hEtaTauFit, hEtaNTLTauFit, hPhiB, hPhiNTLB, hPhiTau, hPhiNTLTau, hPhiBFit, hPhiNTLBFit, hPhiTauFit, hPhiNTLTauFit, hMB, hMNTLB, hMTau, hMNTLTau, hMBFit, hMNTLBFit, hMTauFit, hMNTLTauFit};
+  histograms = {hEt, hEta, hPhi, hTauTauInvMass, hBBInvMass, hEtFit, hEtaFit, hPhiFit, hTauTauInvMassFit, hBBInvMassFit, hEtB, hEtNTLB, hEtMTau, hEtHTau, hEtBFit, hEtNTLBFit, hEtMTauFit, hEtHTauFit, hEtaB, hEtaNTLB, hEtaMTau, hEtaHTau, hEtaBFit, hEtaNTLBFit, hEtaMTauFit, hEtaHTauFit, hPhiB, hPhiNTLB, hPhiMTau, hPhiHTau, hPhiBFit, hPhiNTLBFit, hPhiMTauFit, hPhiHTauFit, hMB, hMNTLB, hMMTau, hMHTau, hMBFit, hMNTLBFit, hMMTauFit, hMHTauFit};
 }
 
 void KinFitOutputModule::drawHistograms()

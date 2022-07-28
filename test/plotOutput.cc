@@ -32,12 +32,12 @@ void plotOutput()
   TFile* svFitTTLeptonic = TFile::Open("Histograms/RecoSVFitTTLeptonicKinFitHistograms.root");
   TFile* svFitTTSemiLeptonic = TFile::Open("Histograms/RecoSVFitTTSemiLeptonicKinFitHistograms.root");
 
-  //plotKinematics(recoSignal, "H->aa->bbtautau");
-  //plotInvariantMasses(recoSignal, recoDYJets, recoTTLeptonic, recoTTSemiLeptonic);
-  //plotKinematics(svFitSignal, "H->aa->bbtautau", true);
-  //plotInvariantMasses(svFitSignal, svFitDYJets, svFitTTLeptonic, svFitTTSemiLeptonic, true);
-  //compareInvariantMasses(recoSignal, svFitSignal, recoDYJets, svFitDYJets, recoTTLeptonic, svFitTTLeptonic, recoTTSemiLeptonic, svFitTTSemiLeptonic, false);
-  //compareInvariantMasses(recoSignal, svFitSignal, recoDYJets, svFitDYJets, recoTTLeptonic, svFitTTLeptonic, recoTTSemiLeptonic, svFitTTSemiLeptonic, true);
+  plotKinematics(recoSignal, "H->aa->bbtautau");
+  plotInvariantMasses(recoSignal, recoDYJets, recoTTLeptonic, recoTTSemiLeptonic);
+  plotKinematics(svFitSignal, "H->aa->bbtautau", true);
+  plotInvariantMasses(svFitSignal, svFitDYJets, svFitTTLeptonic, svFitTTSemiLeptonic, true);
+  compareInvariantMasses(recoSignal, svFitSignal, recoDYJets, svFitDYJets, recoTTLeptonic, svFitTTLeptonic, recoTTSemiLeptonic, svFitTTSemiLeptonic, false);
+  compareInvariantMasses(recoSignal, svFitSignal, recoDYJets, svFitDYJets, recoTTLeptonic, svFitTTLeptonic, recoTTSemiLeptonic, svFitTTSemiLeptonic, true);
   compareLegs(recoSignal, "H->aa->bbtautau");
   compareLegs(recoSignal, "H->aa->bbtautau", false, true);
   compareLegs(svFitSignal, "H->aa->bbtautau", true);
@@ -158,13 +158,13 @@ void compareLegs(TFile* file, std::string process, bool svFit, bool kinFit)
   }
 
   std::string suffix = "(" + prefix + "Reco)";
-  std::vector<std::string> legends = {"Leading b-quark", "Next-To-Leading b-quark", "Leading Tau", "Next-To-Leading Tau"};
+  std::vector<std::string> legends = {"Leading b-quark", "Next-To-Leading b-quark", "Muonic Tau", "Hadronic Tau"};
   std::vector<TFile*> files = {file, file, file, file};
   std::vector<Color_t> colors = {kBlue, kRed, kGreen, kGray};
-  std::vector<std::string> etHistNames = {prefix + "Leading b-quark Transverse Energy;1", prefix + "Next-To-Leading b-quark Transverse Energy;1", prefix + "Leading Tau Transverse Energy;1", prefix + "Next-To-Leading Tau Transverse Energy;1"};
-  std::vector<std::string> etaHistNames = {prefix + "Leading b-quark Pseudorapidity;1", prefix + "Next-To-Leading b-quark Pseudorapidity;1", prefix + "Leading Tau Pseudorapidity;1", prefix + "Next-To-Leading Tau Pseudorapidity;1"};
-  std::vector<std::string> phiHistNames = {prefix + "Leading b-quark Phi;1", prefix + "Next-To-Leading b-quark Phi;1", prefix + "Leading Tau Phi;1", prefix + "Next-To-Leading Tau Phi;1"};
-  std::vector<std::string> massHistNames = {prefix + "Leading b-quark Mass;1", prefix + "Next-To-Leading b-quark Mass;1", prefix + "Leading Tau Mass;1", prefix + "Next-To-Leading Tau Mass;1"};
+  std::vector<std::string> etHistNames = {prefix + "Leading b-quark Transverse Energy;1", prefix + "Next-To-Leading b-quark Transverse Energy;1", prefix + "Muonic Tau Transverse Energy;1", prefix + "Hadronic Tau Transverse Energy;1"};
+  std::vector<std::string> etaHistNames = {prefix + "Leading b-quark Pseudorapidity;1", prefix + "Next-To-Leading b-quark Pseudorapidity;1", prefix + "Muonic Tau Pseudorapidity;1", prefix + "Hadronic Tau Pseudorapidity;1"};
+  std::vector<std::string> phiHistNames = {prefix + "Leading b-quark Phi;1", prefix + "Next-To-Leading b-quark Phi;1", prefix + "Muonic Tau Phi;1", prefix + "Hadronic Tau Phi;1"};
+  std::vector<std::string> massHistNames = {prefix + "Leading b-quark Mass;1", prefix + "Next-To-Leading b-quark Mass;1", prefix + "Muonic Tau Mass;1", prefix + "Hadronic Tau Mass;1"};
 
   if (svFit)
   {

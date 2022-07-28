@@ -50,7 +50,8 @@ protected:
   virtual Particles fitEvent(Particles event);
   virtual void runFitter();
   void fillHistograms(Particles event, TH1F* hEt, TH1F* hEta, TH1F* hPhi, TH1F* hTauTauInvMass, TH1F* hBBInvMass);
-  void fillKinematicHistogramsByLeg(Particles event, int pdgId, std::string kinematic, TH1F* hLeading, TH1F* hNTL = nullptr);
+  void fillHistogramOneParticle(Particle particle, std::string kinematic, TH1F* h);
+  void fillKinematicHistogramsByLeg(Particles event, std::string kinematic, TH1F* hLeadingB, TH1F* hNTLB, TH1F* hMTau, TH1F* hHTau);
 
   void makeHistograms();
   void drawHistograms();

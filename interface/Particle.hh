@@ -10,6 +10,8 @@ class Particle
 {
 public:
   Particle(TLorentzVector iFourVector, int iPdgId);
+  Particle(TLorentzVector iFourVector, int iPdgId, std::vector<std::string> iTags);
+  ~Particle() {};
 
   TLorentzVector getFourVector() {return fourVector;};
   int getPdgId() {return pdgId;};

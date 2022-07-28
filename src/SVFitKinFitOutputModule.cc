@@ -14,7 +14,7 @@ void SVFitKinFitOutputModule::run()
 
 Particles SVFitKinFitOutputModule::fitEvent(Particles event)
 {
-  auto diTauPart = event.getParticles(15)[0];
+  auto diTauPart = event.getParticles(15, "ditau")[0];
   auto bJet1Part = event.getParticles(5)[0];
   auto diTau = convertParticle(diTauPart);
   auto bJet1 = convertParticle(bJet1Part);
@@ -71,7 +71,7 @@ Particles SVFitKinFitOutputModule::fitEvent(Particles event)
   Particles params;
   params.addParticle(diTauPart);
   
-  for (unsigned long int i; i < particles.size(); i++)
+  for (unsigned long int i = 0; i < particles.size(); i++)
   {
     auto fittedValues = particles[i]->getParCurr();
     int pdgId = event.getPdgIds()[i];
@@ -136,7 +136,7 @@ void SVFitKinFitOutputModule::runFitter()
     diTauVec.SetPtEtaPhiM(pt3, eta3, phi3, m3);
 
     // The PDGIDs here represent that the particles are taus and b's, but do not indicate whether they are anti-taus or anti-b's
-    particles.addParticle(diTauVec, 15);
+    particles.addParticle(diTauVec, 15, {"ditau"});
     particles.addParticle(bJet1Vec, 5);
 
     if (pt2 != -9999 && eta2 != -9999 && phi2 != -9999 && m2 != -9999)

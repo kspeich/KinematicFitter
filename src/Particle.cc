@@ -9,6 +9,13 @@ Particle::Particle(TLorentzVector iFourVector, int iPdgId) :
 {
 }
 
+Particle::Particle(TLorentzVector iFourVector, int iPdgId, std::vector<std::string> iTags) :
+  fourVector(iFourVector),
+  pdgId(iPdgId),
+  tags(iTags)
+{
+}
+
 bool Particle::containsTag(std::string tag)
 {
   bool containsTag = false;

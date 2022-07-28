@@ -4,9 +4,9 @@
 #include <vector>
 #include <cmath>
 
-void Particles::addParticle(TLorentzVector particleVec, int pdgId)
+void Particles::addParticle(TLorentzVector particleVec, int pdgId, std::vector<std::string> tags)
 {
-  auto particle = Particle(particleVec, pdgId);
+  auto particle = Particle(particleVec, pdgId, tags);
   particles.push_back(particle);
 }
 
