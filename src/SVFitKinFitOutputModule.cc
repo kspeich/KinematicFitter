@@ -75,6 +75,7 @@ Particles SVFitKinFitOutputModule::fitEvent(Particles event)
   {
     auto fittedValues = particles[i]->getParCurr();
     int pdgId = event.getPdgIds()[i];
+    auto tags = event[i].getTags();
 
     TLorentzVector v;
     double et = fittedValues->GetMatrixArray()[0];
@@ -84,7 +85,7 @@ Particles SVFitKinFitOutputModule::fitEvent(Particles event)
     double pt = calculatePt(et, eta, phi, m);
     v.SetPtEtaPhiM(pt, eta, phi, m);
 
-    params.addParticle(v, pdgId);
+    params.addParticle(v, pdgId, tags);
   }
   
   for (auto constraint : constraints)
@@ -116,9 +117,9 @@ void SVFitKinFitOutputModule::runFitter()
 
   // Loop through each event, perform necessary calculations, and fill the histograms
   int max = tree->GetEntries();
-  if (max > 100000)
+  if (max > 10000)
   {
-    max = 100000;
+    max = 10000;
   }
   for(int i = 0; i < max; i++)   // GetEntries() returns the # of entries in the branch
   {

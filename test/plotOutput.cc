@@ -172,10 +172,10 @@ void compareLegs(TFile* file, std::string process, bool svFit, bool kinFit)
     legends = {"Leading b-quark", "Next-To-Leading b-quark", "Di-Tau"};
     files.pop_back();
     colors.pop_back();
-    etHistNames.pop_back();
-    etaHistNames.pop_back();
-    phiHistNames.pop_back();
-    massHistNames.pop_back();
+    etHistNames = {prefix + "Leading b-quark Transverse Energy;1", prefix + "Next-To-Leading b-quark Transverse Energy;1", prefix + "Di-Tau Transverse Energy;1"};
+    etaHistNames = {prefix + "Leading b-quark Pseudorapidity;1", prefix + "Next-To-Leading b-quark Pseudorapidity;1", prefix + "Di-Tau Pseudorapidity;1"};
+    phiHistNames = {prefix + "Leading b-quark Phi;1", prefix + "Next-To-Leading b-quark Phi;1", prefix + "Di-Tau Phi;1"};
+    massHistNames = {prefix + "Leading b-quark Mass;1", prefix + "Next-To-Leading b-quark Mass;1", prefix + "Di-Tau Mass;1"};
   }
 
   overlayPlots(process + " Transverse Energy by Particle " + suffix, "Transverse Energy (GeV)", "Number of Events", files, etHistNames, legends, colors);
