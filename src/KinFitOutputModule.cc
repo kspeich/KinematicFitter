@@ -18,17 +18,39 @@ void KinFitOutputModule::run()
 
 Double_t KinFitOutputModule::ErrEt(TLorentzVector particleVec)
 {  
-  return 0.05 * particleVec.Et();
+  return pow(particleVec.Et(), -0.5);
 }
 
 Double_t KinFitOutputModule::ErrEta(TLorentzVector particleVec)
 {
-  return 0.05 * particleVec.Eta();
+  if (abs(particleVec.Eta()) < 1.74)
+  {
+    return 0.087;                           // HCAL Barrel (0 < |eta| < 1.392) and Endcap (1.305 < |eta| < 1.74) Granularity
+  }
+  else if (abs(particleVec.Eta()) < 3.0)
+  {
+    return 0.17;                            // HCAL Endcap (1.74 < |eta| < 3) Granularity closer to the beampipe
+  }
+  else
+  {
+    return 0.175;                           // Forward HCAL Granularity
+  }
 }
 
 Double_t KinFitOutputModule::ErrPhi(TLorentzVector particleVec)
 {
-  return 0.05 * particleVec.Phi();
+  if (abs(particleVec.Eta()) < 1.74)
+  {
+    return 0.087;                           // HCAL Barrel (0 < |eta| < 1.392) and Endcap (1.305 < |eta| < 1.74) Granularity
+  }
+  else if (abs(particleVec.Eta()) < 3.0)
+  {
+    return 0.17;                            // HCAL Endcap (1.74 < |eta| < 3) Granularity closer to the beampipe
+  }
+  else
+  {
+    return 0.175;                           // Forward HCAL Granularity
+  }
 }
 
 Float_t KinFitOutputModule::calculatePt(Float_t Et, Float_t eta, Float_t phi, Float_t m)
@@ -185,9 +207,9 @@ void KinFitOutputModule::runFitter()
 
   // Loop through each event, perform necessary calculations, and fill the histograms
   int max = tree->GetEntries();
-  if (max > 10000)
+  if (max > 100000)
   {
-    max = 10000;
+    max = 100000;
   }
   for(int i = 0; i < max; i++)   // GetEntries() returns the # of entries in the branch
   {

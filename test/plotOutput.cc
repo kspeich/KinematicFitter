@@ -38,11 +38,10 @@ void plotOutput()
   plotInvariantMasses(svFitSignal, svFitDYJets, svFitTTLeptonic, svFitTTSemiLeptonic, true);
   compareInvariantMasses(recoSignal, svFitSignal, recoDYJets, svFitDYJets, recoTTLeptonic, svFitTTLeptonic, recoTTSemiLeptonic, svFitTTSemiLeptonic, false);
   compareInvariantMasses(recoSignal, svFitSignal, recoDYJets, svFitDYJets, recoTTLeptonic, svFitTTLeptonic, recoTTSemiLeptonic, svFitTTSemiLeptonic, true);
-  compareLegs(recoSignal, "H->aa->bbtautau");
-  compareLegs(recoSignal, "H->aa->bbtautau", false, true);
-  compareLegs(svFitSignal, "H->aa->bbtautau", true);
-  compareLegs(svFitSignal, "H->aa->bbtautau", true, true);
-  compareLegs(svFitDYJets, "DY Jets", true);
+  //compareLegs(recoSignal, "H->aa->bbtautau");
+  //compareLegs(recoSignal, "H->aa->bbtautau", false, true);
+  //compareLegs(svFitSignal, "H->aa->bbtautau", true);
+  //compareLegs(svFitSignal, "H->aa->bbtautau", true, true);
 }
 
 void overlayPlots(std::string canvasName, std::string xAxis, std::string yAxis, std::vector<TFile*> files, std::vector<std::string> histNames, std::vector<std::string> legends, std::vector<Color_t> colors)
@@ -124,6 +123,16 @@ void plotInvariantMasses(TFile* signalKinFitHistograms, TFile* dyJetsKinFitHisto
   overlayPlots("TT Leptonic BB Invariant Mass " + suffix, "Invariant Mass (GeV)", "Number of Events", {ttLeptonicKinFitHistograms, ttLeptonicKinFitHistograms}, {"Unfitted BB Invariant Mass;1", "Fitted BB Invariant Mass;1"}, {"Before Kinematic Fit", "After Kinematic Fit"}, {kBlue, kRed});
   overlayPlots("TT Semi-Leptonic Tau Tau Invariant Mass " + suffix, "Invariant Mass (GeV)", "Number of Events", {ttSemiLeptonicKinFitHistograms, ttSemiLeptonicKinFitHistograms}, {"Unfitted Tau Tau Invariant Mass;1", "Fitted Tau Tau Invariant Mass;1"}, {"Before Kinematic Fit", "After Kinematic Fit"}, {kBlue, kRed});
   overlayPlots("TT Semi-Leptonic BB Invariant Mass " + suffix, "Invariant Mass (GeV)", "Number of Events", {ttSemiLeptonicKinFitHistograms, ttSemiLeptonicKinFitHistograms}, {"Unfitted BB Invariant Mass;1", "Fitted BB Invariant Mass;1"}, {"Before Kinematic Fit", "After Kinematic Fit"}, {kBlue, kRed});
+
+
+  std::vector<TFile*> files = {signalKinFitHistograms, dyJetsKinFitHistograms, ttLeptonicKinFitHistograms, ttSemiLeptonicKinFitHistograms};
+  std::vector<std::string> legends = {"H->aa->bbtautau", "DY Jets", "TT Leptonic", "TT Semi-Leptonic"};
+  std::vector<Color_t> colors = {kBlue, kRed, kGreen, kGray};
+  overlayPlots("Unfitted Tau Tau Invariant Mass " + suffix, "Invariant Mass (GeV)", "Number of Events", files, {"Unfitted Tau Tau Invariant Mass;1", "Unfitted Tau Tau Invariant Mass;1", "Unfitted Tau Tau Invariant Mass;1", "Unfitted Tau Tau Invariant Mass;1"}, legends, colors);
+  overlayPlots("Unfitted BB Invariant Mass " + suffix, "Invariant Mass (GeV)", "Number of Events", files, {"Unfitted BB Invariant Mass;1", "Unfitted BB Invariant Mass;1", "Unfitted BB Invariant Mass;1", "Unfitted BB Invariant Mass;1"}, legends, colors);
+  overlayPlots("Fitted Tau Tau Invariant Mass " + suffix, "Invariant Mass (GeV)", "Number of Events", files, {"Fitted Tau Tau Invariant Mass;1", "Fitted Tau Tau Invariant Mass;1", "Fitted Tau Tau Invariant Mass;1", "Fitted Tau Tau Invariant Mass;1"}, legends, colors);
+  overlayPlots("Fitted BB Invariant Mass " + suffix, "Invariant Mass (GeV)", "Number of Events", files, {"Fitted BB Invariant Mass;1", "Fitted BB Invariant Mass;1", "Fitted BB Invariant Mass;1", "Fitted BB Invariant Mass;1"}, legends, colors);
+
 }
 
 void compareInvariantMasses(TFile* signalKinFitHistograms, TFile* svFitSignalKinFitHistograms, TFile* dyJetsKinFitHistograms, TFile* svFitDYJetsKinFitHistograms, TFile* ttLeptonicKinFitHistograms, TFile* svFitTTLeptonicKinFitHistograms, TFile* ttSemiLeptonicKinFitHistograms, TFile* svFitTTSemiLeptonicKinFitHistograms, bool kinFit)
