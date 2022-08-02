@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-void testKinFitFWLite()
+void runKinFitter()
 {
   // Read the signal files
   TFile *recoSignal = TFile::Open("InputFiles/SUSYGluGluToHToAA_AToBB_AToTauTau_M-45_Skim_svfitted.root");
@@ -49,7 +49,7 @@ void testKinFitFWLite()
 
   std::cout << "Calculating S/B and S/sqrt(S+B) ratios...\n";
   double lumi = 59.74;
-  std::cout << "Reco values: \n";
+  std::cout << "\nReco values: \n";
   auto kinFitEfficiency = KinFitEfficiency(signalKinFitOutputMod, signalCrossSection, lumi);
   kinFitEfficiency.addBackground(dyJetsKinFitOutputMod, dyJetsCrossSection, lumi);
   kinFitEfficiency.addBackground(ttLeptonicKinFitOutputMod, ttLeptonicCrossSection, lumi);
@@ -57,7 +57,7 @@ void testKinFitFWLite()
   kinFitEfficiency.run(45., 5., 5.);
   kinFitEfficiency.run(45., 3., 3.);
 
-  std::cout << "SVFit Reco values: \n";
+  std::cout << "\nSVFit Reco values: \n";
   auto svFitKinFitEfficiency = KinFitEfficiency(signalSVFitKinFitOutputMod, signalCrossSection, lumi);
   svFitKinFitEfficiency.addBackground(dyJetsSVFitKinFitOutputMod, dyJetsCrossSection, lumi);
   svFitKinFitEfficiency.addBackground(ttLeptonicSVFitKinFitOutputMod, ttLeptonicCrossSection, lumi);

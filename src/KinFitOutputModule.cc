@@ -16,18 +16,18 @@ void KinFitOutputModule::run()
   drawHistograms();
 }
 
-Double_t KinFitOutputModule::ErrEt(TLorentzVector particleVec)
+Double_t KinFitOutputModule::ErrEt(Particle particle)
 {  
-  return pow(particleVec.Et(), -0.5);
+  return pow(particle.Et(), -0.5);
 }
 
-Double_t KinFitOutputModule::ErrEta(TLorentzVector particleVec)
+Double_t KinFitOutputModule::ErrEta(Particle particle)
 {
-  if (abs(particleVec.Eta()) < 1.74)
+  if (abs(particle.Eta()) < 1.74)
   {
     return 0.087;                           // HCAL Barrel (0 < |eta| < 1.392) and Endcap (1.305 < |eta| < 1.74) Granularity
   }
-  else if (abs(particleVec.Eta()) < 3.0)
+  else if (abs(particle.Eta()) < 3.0)
   {
     return 0.17;                            // HCAL Endcap (1.74 < |eta| < 3) Granularity closer to the beampipe
   }
@@ -37,13 +37,13 @@ Double_t KinFitOutputModule::ErrEta(TLorentzVector particleVec)
   }
 }
 
-Double_t KinFitOutputModule::ErrPhi(TLorentzVector particleVec)
+Double_t KinFitOutputModule::ErrPhi(Particle particle)
 {
-  if (abs(particleVec.Eta()) < 1.74)
+  if (abs(particle.Eta()) < 1.74)
   {
     return 0.087;                           // HCAL Barrel (0 < |eta| < 1.392) and Endcap (1.305 < |eta| < 1.74) Granularity
   }
-  else if (abs(particleVec.Eta()) < 3.0)
+  else if (abs(particle.Eta()) < 3.0)
   {
     return 0.17;                            // HCAL Endcap (1.74 < |eta| < 3) Granularity closer to the beampipe
   }
@@ -88,9 +88,9 @@ TFitParticleEtEtaPhi* KinFitOutputModule::convertParticle(Particle particle)
   TMatrixD covMatrix(3,3);
   covMatrix.Zero();
 
-  covMatrix(0,0) = ErrEt(vec);
-  covMatrix(1,1) = ErrEta(vec);
-  covMatrix(2,2) = ErrPhi(vec);
+  covMatrix(0,0) = ErrEt(particle);
+  covMatrix(1,1) = ErrEta(particle);
+  covMatrix(2,2) = ErrPhi(particle);
 
   TFitParticleEtEtaPhi *tFitParticle = new TFitParticleEtEtaPhi(&vec, &covMatrix);
   return tFitParticle;
