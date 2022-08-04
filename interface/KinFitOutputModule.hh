@@ -37,9 +37,9 @@ protected:
 
   std::string outputFile;
 
-  Double_t ErrEt(TLorentzVector particleVec);
-  Double_t ErrEta(TLorentzVector particleVec);
-  Double_t ErrPhi(TLorentzVector particleVec);
+  Double_t ErrEt(Particle particle);
+  Double_t ErrEta(Particle particle);
+  Double_t ErrPhi(Particle particle);
   
   Float_t calculatePt(Float_t Et, Float_t eta, Float_t phi, Float_t m);
 
@@ -50,8 +50,11 @@ protected:
   virtual Particles fitEvent(Particles event);
   virtual void runFitter();
   void fillHistograms(Particles event, TH1F* hEt, TH1F* hEta, TH1F* hPhi, TH1F* hTauTauInvMass, TH1F* hBBInvMass);
+  void fillKinematicHistograms(Particles event, TH1F* hEt, TH1F* hEta, TH1F* hPhi);
+  void fillInvariantMassHistograms(Particles event, TH1F* hTauTauInvMass, TH1F* hBBInvMass);
+  void fillInvariantMassHistogramsByNumBJets(Particles event, TH1F* hTauTauInvMass1Jet, TH1F* hBBInvMass1Jet, TH1F* hTauTauInvMass2Jet, TH1F* hBBInvMass2Jet);
   void fillHistogramOneParticle(Particle particle, std::string kinematic, TH1F* h);
-  void fillKinematicHistogramsByLeg(Particles event, std::string kinematic, TH1F* hLeadingB, TH1F* hNTLB, TH1F* hMTau, TH1F* hHTau);
+  void fillKinematicHistogramsByLeg(Particles event, std::string kinematic, TH1F* hLeadingB, TH1F* hNTLB, TH1F* hMTau, TH1F* hHTau, TH1F* hDTau);
 
   void makeHistograms();
   void drawHistograms();

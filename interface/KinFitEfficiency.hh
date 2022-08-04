@@ -22,7 +22,9 @@ class KinFitEfficiency
 {
 public:
   KinFitEfficiency(KinFitOutputModule signal, double iSignalCrossSection, double iSignalLuminosity);
+  KinFitEfficiency(KinFitOutputModule signal, double iSignalCrossSection, double iSignalLuminosity, std::vector<KinFitOutputModule> backgrounds, std::vector<double> backgroundCrossSections, std::vector<double> backgroundLuminosities);
   void addBackground(KinFitOutputModule background, double crossSection, double luminosity);
+  void addBackgrounds(std::vector<KinFitOutputModule> backgrounds, std::vector<double> backgroundCrossSections, std::vector<double> backgroundLuminosities);
 
   void run(double peakMass, double lowerWidth, double upperWidth);
 

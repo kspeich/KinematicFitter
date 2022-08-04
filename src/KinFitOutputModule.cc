@@ -207,9 +207,9 @@ void KinFitOutputModule::runFitter()
 
   // Loop through each event, perform necessary calculations, and fill the histograms
   int max = tree->GetEntries();
-  if (max > 100000)
+  if (max > 10000)
   {
-    max = 100000;
+    max = 10000;
   }
   for(int i = 0; i < max; i++)   // GetEntries() returns the # of entries in the branch
   {
@@ -245,18 +245,41 @@ void KinFitOutputModule::runFitter()
 
 void KinFitOutputModule::fillHistograms(Particles event, TH1F* hEt, TH1F* hEta, TH1F* hPhi, TH1F* hTauTauInvMass, TH1F* hBBInvMass)
 {
+  fillKinematicHistograms(event, hEt, hEta, hPhi);
+  fillInvariantMassHistograms(event, hTauTauInvMass, hBBInvMass);
+}
+
+void KinFitOutputModule::fillKinematicHistograms(Particles event, TH1F* hEt, TH1F* hEta, TH1F* hPhi)
+{
   for (auto particle : event.getParticles())
   {
     hEt->Fill(particle.Et());
     hEta->Fill(particle.Eta());
     hPhi->Fill(particle.Phi());
   }
+}
 
+void KinFitOutputModule::fillInvariantMassHistograms(Particles event, TH1F* hTauTauInvMass, TH1F* hBBInvMass)
+{
   hTauTauInvMass->Fill(event.getInvariantMass(15));    // Filling the tau tau invariant mass is unrelated to whether or not a second b-jet exists
 
   if (event.getNumParticles(5) == 2)
   {
     hBBInvMass->Fill(event.getInvariantMass(5));     // Only fill the BB invariant mass if there are TWO b-jets
+  }
+}
+
+void KinFitOutputModule::fillInvariantMassHistogramsByNumBJets(Particles event, TH1F* hTauTauInvMass1Jet, TH1F* hBBInvMass1Jet, TH1F* hTauTauInvMass2Jet, TH1F* hBBInvMass2Jet)
+{
+  // Fills either the histograms for 1 b-jet or the histograms for 2 b-jets
+  
+  if (event.getNumParticles(5) == 1)
+  {
+    fillInvariantMassHistograms(event, hTauTauInvMass1Jet, hBBInvMass1Jet);
+  }
+  else if (event.getNumParticles(5) == 2)
+  {
+    fillInvariantMassHistograms(event, hTauTauInvMass2Jet, hBBInvMass2Jet);
   }
 }
 
@@ -378,6 +401,16 @@ void KinFitOutputModule::makeHistograms()
   auto *hMHTauFit = new TH1F("Fitted Hadronic Tau Mass", "Fitted Hadronic Tau Mass", 100, 0, 200);
   auto *hMDTauFit = new TH1F("Fitted Di-Tau Mass", "Fitted Di-Tau Mass", 100, 0, 200);
 
+  auto *hTauTauInvMass1BJet = new TH1F("Unfitted Tau Tau Invariant Mass (1 b-jet)", "Unfitted Tau Tau Invariant Mass (1 b-jet)", 100, 0, 200);
+  auto *hTauTauInvMass2BJet = new TH1F("Unfitted Tau Tau Invariant Mass (2 b-jets)", "Unfitted Tau Tau Invariant Mass (2 b-jets)", 100, 0, 200);
+  auto *hBBInvMass1BJet = new TH1F("Unfitted BB Invariant Mass (1 b-jet)", "Unfitted BB Invariant Mass (1 b-jet)", 100, 0, 200);
+  auto *hBBInvMass2BJet = new TH1F("Unfitted BB Invariant Mass (2 b-jets)", "Unfitted BB Invariant Mass (2 b-jets)", 100, 0, 200);
+
+  auto *hTauTauInvMass1BJetFit = new TH1F("Fitted Tau Tau Invariant Mass (1 b-jet)", "Fitted Tau Tau Invariant Mass (1 b-jet)", 100, 0, 200);
+  auto *hTauTauInvMass2BJetFit = new TH1F("Fitted Tau Tau Invariant Mass (2 b-jets)", "Fitted Tau Tau Invariant Mass (2 b-jets)", 100, 0, 200);
+  auto *hBBInvMass1BJetFit = new TH1F("Fitted BB Invariant Mass (1 b-jet)", "Fitted BB Invariant Mass (1 b-jet)", 100, 0, 200);
+  auto *hBBInvMass2BJetFit = new TH1F("Fitted BB Invariant Mass (2 b-jets)", "Fitted BB Invariant Mass (2 b-jets)", 100, 0, 200);
+
   // Fill the histograms
   for (auto unfittedEvent : unfittedEvents)
   {
@@ -386,6 +419,7 @@ void KinFitOutputModule::makeHistograms()
     fillKinematicHistogramsByLeg(unfittedEvent, "eta", hEtaB, hEtaNTLB, hEtaMTau, hEtaHTau, hEtaDTau);
     fillKinematicHistogramsByLeg(unfittedEvent, "phi", hPhiB, hPhiNTLB, hPhiMTau, hPhiHTau, hPhiDTau);
     fillKinematicHistogramsByLeg(unfittedEvent, "m", hMB, hMNTLB, hMMTau, hMHTau, hMDTau);
+    fillInvariantMassHistogramsByNumBJets(unfittedEvent, hTauTauInvMass1BJet, hBBInvMass1BJet, hTauTauInvMass2BJet, hBBInvMass2BJet);
   }
   for (auto fittedEvent : fittedEvents)
   {
@@ -394,10 +428,11 @@ void KinFitOutputModule::makeHistograms()
     fillKinematicHistogramsByLeg(fittedEvent, "eta", hEtaBFit, hEtaNTLBFit, hEtaMTauFit, hEtaHTauFit, hEtaDTauFit);
     fillKinematicHistogramsByLeg(fittedEvent, "phi", hPhiBFit, hPhiNTLBFit, hPhiMTauFit, hPhiHTauFit, hPhiDTauFit);
     fillKinematicHistogramsByLeg(fittedEvent, "m", hMBFit, hMNTLBFit, hMMTauFit, hMHTauFit, hMDTauFit);
+    fillInvariantMassHistogramsByNumBJets(fittedEvent, hTauTauInvMass1BJetFit, hBBInvMass1BJetFit, hTauTauInvMass2BJetFit, hBBInvMass2BJetFit);
   }
 
   // Add
-  histograms = {hEt, hEta, hPhi, hTauTauInvMass, hBBInvMass, hEtFit, hEtaFit, hPhiFit, hTauTauInvMassFit, hBBInvMassFit, hEtB, hEtNTLB, hEtMTau, hEtHTau, hEtDTau, hEtBFit, hEtNTLBFit, hEtMTauFit, hEtHTauFit, hEtDTauFit, hEtaB, hEtaNTLB, hEtaMTau, hEtaHTau, hEtaDTau, hEtaBFit, hEtaNTLBFit, hEtaMTauFit, hEtaHTauFit, hEtaDTauFit, hPhiB, hPhiNTLB, hPhiMTau, hPhiHTau, hPhiDTau, hPhiBFit, hPhiNTLBFit, hPhiMTauFit, hPhiHTauFit, hPhiDTauFit, hMB, hMNTLB, hMMTau, hMHTau, hMDTau, hMBFit, hMNTLBFit, hMMTauFit, hMHTauFit, hMDTauFit};
+  histograms = {hEt, hEta, hPhi, hTauTauInvMass, hBBInvMass, hEtFit, hEtaFit, hPhiFit, hTauTauInvMassFit, hBBInvMassFit, hEtB, hEtNTLB, hEtMTau, hEtHTau, hEtDTau, hEtBFit, hEtNTLBFit, hEtMTauFit, hEtHTauFit, hEtDTauFit, hEtaB, hEtaNTLB, hEtaMTau, hEtaHTau, hEtaDTau, hEtaBFit, hEtaNTLBFit, hEtaMTauFit, hEtaHTauFit, hEtaDTauFit, hPhiB, hPhiNTLB, hPhiMTau, hPhiHTau, hPhiDTau, hPhiBFit, hPhiNTLBFit, hPhiMTauFit, hPhiHTauFit, hPhiDTauFit, hMB, hMNTLB, hMMTau, hMHTau, hMDTau, hMBFit, hMNTLBFit, hMMTauFit, hMHTauFit, hMDTauFit, hTauTauInvMass1BJet, hBBInvMass1BJet, hTauTauInvMass2BJet, hBBInvMass2BJet, hTauTauInvMass1BJetFit, hBBInvMass1BJetFit, hTauTauInvMass2BJetFit, hBBInvMass2BJetFit};
 }
 
 void KinFitOutputModule::drawHistograms()

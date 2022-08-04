@@ -12,12 +12,32 @@ KinFitEfficiency::KinFitEfficiency(KinFitOutputModule signal, double iSignalCros
   fittedSignalEvents = signal.getFittedEvents();
 }
 
+KinFitEfficiency::KinFitEfficiency(KinFitOutputModule signal, double iSignalCrossSection, double iSignalLuminosity, std::vector<KinFitOutputModule> backgrounds, std::vector<double> backgroundCrossSections, std::vector<double> backgroundLuminosities) :
+  signalCrossSection(iSignalCrossSection),
+  signalLuminosity(iSignalLuminosity)
+{
+  signalEvents = signal.getUnfittedEvents();
+  fittedSignalEvents = signal.getFittedEvents();
+  addBackgrounds(backgrounds, backgroundCrossSections, backgroundLuminosities);
+}
+
 void KinFitEfficiency::addBackground(KinFitOutputModule background, double crossSection, double luminosity)
 {
   backgroundEvents.push_back(background.getUnfittedEvents());
   fittedBackgroundEvents.push_back(background.getFittedEvents());
   backgroundCrossSections.push_back(crossSection);
   backgroundLuminosities.push_back(luminosity);
+}
+
+void KinFitEfficiency::addBackgrounds(std::vector<KinFitOutputModule> backgrounds, std::vector<double> backgroundCrossSections, std::vector<double> backgroundLuminosities)
+{
+  if (backgrounds.size() == backgroundCrossSections.size() && backgrounds.size() == backgroundLuminosities.size())
+  {
+    for (unsigned long int i = 0; i < backgrounds.size(); i++)
+    {
+      addBackground(backgrounds[i], backgroundCrossSections[i], backgroundLuminosities[i]);
+    }
+  }
 }
 
 void KinFitEfficiency::run(double peakMass, double lowerWidth, double upperWidth)
