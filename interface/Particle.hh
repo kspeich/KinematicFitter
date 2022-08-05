@@ -25,6 +25,9 @@ public:
   double Eta() {return fourVector.Eta();};
   double Phi() {return fourVector.Phi();};
   double M() {return fourVector.M();};
+  double Theta() {return fourVector.Theta();};
+  double E() {return fourVector.E();};
+  double P() {return fourVector.P();};
 
 private:
   TLorentzVector fourVector;

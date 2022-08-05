@@ -18,39 +18,86 @@ void KinFitOutputModule::run()
 
 Double_t KinFitOutputModule::ErrEt(Particle particle)
 {  
-  return pow(particle.Et(), -0.5);
+  if (particle.getPdgId() == 5)                                // B-jet
+  {
+    return (0.2 * particle.Et());
+  }
+  else if (particle.getPdgId() == 15)                          // Tau
+  {
+    if (particle.containsTag("hadronic"))                   // Hadronic Tau
+    {
+      return 1;
+    }
+    else if (particle.containsTag("muonic"))                // Muonic Tau
+    {
+      double ptUncertainty = 0.05 * particle.Pt();
+      return (particle.E() * ptUncertainty / particle.P());
+    }
+    else if (particle.containsTag("ditau"))                 // Di-tau object
+    {
+      return 10;
+    }
+  }
+  
+  return 0;          // This should error out the kinematic fitter and the cause the event to not be fitted
 }
 
 Double_t KinFitOutputModule::ErrEta(Particle particle)
 {
-  if (abs(particle.Eta()) < 1.74)
+  if (particle.getPdgId() == 5)                                // B-jet
   {
-    return 0.087;                           // HCAL Barrel (0 < |eta| < 1.392) and Endcap (1.305 < |eta| < 1.74) Granularity
+    return 0.04;
   }
-  else if (abs(particle.Eta()) < 3.0)
+  else if (particle.getPdgId() == 15)                          // Tau
   {
-    return 0.17;                            // HCAL Endcap (1.74 < |eta| < 3) Granularity closer to the beampipe
+    if (particle.containsTag("hadronic"))                   // Hadronic Tau
+    {
+      return 0.02;
+    }
+    else if (particle.containsTag("muonic"))                // Muonic Tau
+    {
+      double spatialUncertainty = 0.001;      // Spacial uncertainty in eta is roughly 1000 µm => 0.001 m
+      double radius = 7.5;                    // Radius of the muon detector is 7.5m
+
+      double thetaUncertainty = abs(atan(spatialUncertainty / radius));
+
+      return abs(-log(tan(0.5 * (particle.Theta() + thetaUncertainty))) - particle.Eta());
+    }
+    else if (particle.containsTag("ditau"))                 // Di-tau object
+    {
+      return 0.4;
+    }
   }
-  else
-  {
-    return 0.175;                           // Forward HCAL Granularity
-  }
+
+  return 0;          // This should error out the kinematic fitter and the cause the event to not be fitted
 }
 
 Double_t KinFitOutputModule::ErrPhi(Particle particle)
 {
-  if (abs(particle.Eta()) < 1.74)
+  if (particle.getPdgId() == 5)                                // B-jet
   {
-    return 0.087;                           // HCAL Barrel (0 < |eta| < 1.392) and Endcap (1.305 < |eta| < 1.74) Granularity
+    return 0.04;
   }
-  else if (abs(particle.Eta()) < 3.0)
+  else if (particle.getPdgId() == 15)                          // Tau
   {
-    return 0.17;                            // HCAL Endcap (1.74 < |eta| < 3) Granularity closer to the beampipe
+    if (particle.containsTag("hadronic"))                   // Hadronic Tau
+    {
+      return 0.02;
+    }
+    else if (particle.containsTag("muonic"))                // Muonic Tau
+    {
+      double spatialUncertainty = 0.0003;     // Spacial uncertainty in eta is roughly 300 µm => 0.0003 m
+      double radius = 7.5;                    // Radius of the muon detector is 7.5m
+
+      return (atan(spatialUncertainty / radius));
+    }
+    else if (particle.containsTag("ditau"))                 // Di-tau object
+    {
+      return 0.8;
+    }
   }
-  else
-  {
-    return 0.175;                           // Forward HCAL Granularity
-  }
+  
+  return 0;          // This should error out the kinematic fitter and the cause the event to not be fitted
 }
 
 Float_t KinFitOutputModule::calculatePt(Float_t Et, Float_t eta, Float_t phi, Float_t m)
@@ -207,9 +254,9 @@ void KinFitOutputModule::runFitter()
 
   // Loop through each event, perform necessary calculations, and fill the histograms
   int max = tree->GetEntries();
-  if (max > 10000)
+  if (max > 100000)
   {
-    max = 10000;
+    max = 100000;
   }
   for(int i = 0; i < max; i++)   // GetEntries() returns the # of entries in the branch
   {
@@ -243,10 +290,10 @@ void KinFitOutputModule::runFitter()
   }
 }
 
-void KinFitOutputModule::fillHistograms(Particles event, TH1F* hEt, TH1F* hEta, TH1F* hPhi, TH1F* hTauTauInvMass, TH1F* hBBInvMass)
+void KinFitOutputModule::fillHistograms(Particles event, TH1F* hEt, TH1F* hEta, TH1F* hPhi, TH1F* hTauTauInvMass, TH1F* hBBInvMass, TH1F* hAllInvMass)
 {
   fillKinematicHistograms(event, hEt, hEta, hPhi);
-  fillInvariantMassHistograms(event, hTauTauInvMass, hBBInvMass);
+  fillInvariantMassHistograms(event, hTauTauInvMass, hBBInvMass, hAllInvMass);
 }
 
 void KinFitOutputModule::fillKinematicHistograms(Particles event, TH1F* hEt, TH1F* hEta, TH1F* hPhi)
@@ -259,7 +306,7 @@ void KinFitOutputModule::fillKinematicHistograms(Particles event, TH1F* hEt, TH1
   }
 }
 
-void KinFitOutputModule::fillInvariantMassHistograms(Particles event, TH1F* hTauTauInvMass, TH1F* hBBInvMass)
+void KinFitOutputModule::fillInvariantMassHistograms(Particles event, TH1F* hTauTauInvMass, TH1F* hBBInvMass, TH1F* hAllInvMass)
 {
   hTauTauInvMass->Fill(event.getInvariantMass(15));    // Filling the tau tau invariant mass is unrelated to whether or not a second b-jet exists
 
@@ -267,19 +314,21 @@ void KinFitOutputModule::fillInvariantMassHistograms(Particles event, TH1F* hTau
   {
     hBBInvMass->Fill(event.getInvariantMass(5));     // Only fill the BB invariant mass if there are TWO b-jets
   }
+
+  hAllInvMass->Fill(event.getInvariantMass());
 }
 
-void KinFitOutputModule::fillInvariantMassHistogramsByNumBJets(Particles event, TH1F* hTauTauInvMass1Jet, TH1F* hBBInvMass1Jet, TH1F* hTauTauInvMass2Jet, TH1F* hBBInvMass2Jet)
+void KinFitOutputModule::fillInvariantMassHistogramsByNumBJets(Particles event, TH1F* hTauTauInvMass1Jet, TH1F* hBBInvMass1Jet, TH1F* hTauTauInvMass2Jet, TH1F* hBBInvMass2Jet, TH1F* hAllInvMass1BJet, TH1F* hAllInvMass2BJet)
 {
   // Fills either the histograms for 1 b-jet or the histograms for 2 b-jets
   
   if (event.getNumParticles(5) == 1)
   {
-    fillInvariantMassHistograms(event, hTauTauInvMass1Jet, hBBInvMass1Jet);
+    fillInvariantMassHistograms(event, hTauTauInvMass1Jet, hBBInvMass1Jet, hAllInvMass1BJet);
   }
   else if (event.getNumParticles(5) == 2)
   {
-    fillInvariantMassHistograms(event, hTauTauInvMass2Jet, hBBInvMass2Jet);
+    fillInvariantMassHistograms(event, hTauTauInvMass2Jet, hBBInvMass2Jet, hAllInvMass2BJet);
   }
 }
 
@@ -344,6 +393,7 @@ void KinFitOutputModule::makeHistograms()
   auto *hPhi = new TH1F("Unfitted Phi", "Unfitted Phi", 100, -4, 4);
   auto *hTauTauInvMass = new TH1F("Unfitted Tau Tau Invariant Mass", "Unfitted Tau Tau Invariant Mass", 100, 0, 200);
   auto *hBBInvMass = new TH1F("Unfitted BB Invariant Mass", "Unfitted BB Invariant Mass", 100, 0, 200);
+  auto *hAllInvMass = new TH1F("Unfitted All-Particle Invariant Mass", "Unfitted All-Particle Invariant Mass", 200, 0, 400);
 
   // Initialize the fitted histograms
   auto *hEtFit = new TH1F("Fitted Transverse Energy", "Fitted Transverse Energy", 100, 0, 200);
@@ -351,6 +401,7 @@ void KinFitOutputModule::makeHistograms()
   auto *hPhiFit = new TH1F("Fitted Phi", "Fitted Phi", 100, -4, 4);
   auto *hTauTauInvMassFit = new TH1F("Fitted Tau Tau Invariant Mass", "Fitted Tau Tau Invariant Mass", 100, 0, 200);
   auto *hBBInvMassFit = new TH1F("Fitted BB Invariant Mass", "Fitted BB Invariant Mass", 100, 0, 200);
+  auto *hAllInvMassFit = new TH1F("Fitted All-Particle Invariant Mass", "Fitted All-Particle Invariant Mass", 200, 0, 400);
 
   // Initialize the debug/test histograms
   auto *hEtB = new TH1F("Unfitted Leading b-quark Transverse Energy", "Unfitted Leading b-quark Transverse Energy", 100, 0, 200);
@@ -405,34 +456,38 @@ void KinFitOutputModule::makeHistograms()
   auto *hTauTauInvMass2BJet = new TH1F("Unfitted Tau Tau Invariant Mass (2 b-jets)", "Unfitted Tau Tau Invariant Mass (2 b-jets)", 100, 0, 200);
   auto *hBBInvMass1BJet = new TH1F("Unfitted BB Invariant Mass (1 b-jet)", "Unfitted BB Invariant Mass (1 b-jet)", 100, 0, 200);
   auto *hBBInvMass2BJet = new TH1F("Unfitted BB Invariant Mass (2 b-jets)", "Unfitted BB Invariant Mass (2 b-jets)", 100, 0, 200);
+  auto *hAllInvMass1BJet = new TH1F("Unfitted All-Particle Invariant Mass (1 b-jet)", "Unfitted All-Particle Invariant Mass (1 b-jet)", 200, 0, 400);
+  auto *hAllInvMass2BJet = new TH1F("Unfitted All-Particle Invariant Mass (2 b-jets)", "Unfitted All-Particle Invariant Mass (2 b-jets)", 200, 0, 400);
 
   auto *hTauTauInvMass1BJetFit = new TH1F("Fitted Tau Tau Invariant Mass (1 b-jet)", "Fitted Tau Tau Invariant Mass (1 b-jet)", 100, 0, 200);
   auto *hTauTauInvMass2BJetFit = new TH1F("Fitted Tau Tau Invariant Mass (2 b-jets)", "Fitted Tau Tau Invariant Mass (2 b-jets)", 100, 0, 200);
   auto *hBBInvMass1BJetFit = new TH1F("Fitted BB Invariant Mass (1 b-jet)", "Fitted BB Invariant Mass (1 b-jet)", 100, 0, 200);
   auto *hBBInvMass2BJetFit = new TH1F("Fitted BB Invariant Mass (2 b-jets)", "Fitted BB Invariant Mass (2 b-jets)", 100, 0, 200);
+  auto *hAllInvMass1BJetFit = new TH1F("Fitted All-Particle Invariant Mass (1 b-jet)", "Fitted All-Particle Invariant Mass (1 b-jet)", 200, 0, 400);
+  auto *hAllInvMass2BJetFit = new TH1F("Fitted All-Particle Invariant Mass (2 b-jets)", "Fitted All-Particle Invariant Mass (2 b-jets)", 200, 0, 400);
 
   // Fill the histograms
   for (auto unfittedEvent : unfittedEvents)
   {
-    fillHistograms(unfittedEvent, hEt, hEta, hPhi, hTauTauInvMass, hBBInvMass);
+    fillHistograms(unfittedEvent, hEt, hEta, hPhi, hTauTauInvMass, hBBInvMass, hAllInvMass);
     fillKinematicHistogramsByLeg(unfittedEvent, "et", hEtB, hEtNTLB, hEtMTau, hEtHTau, hEtDTau);
     fillKinematicHistogramsByLeg(unfittedEvent, "eta", hEtaB, hEtaNTLB, hEtaMTau, hEtaHTau, hEtaDTau);
     fillKinematicHistogramsByLeg(unfittedEvent, "phi", hPhiB, hPhiNTLB, hPhiMTau, hPhiHTau, hPhiDTau);
     fillKinematicHistogramsByLeg(unfittedEvent, "m", hMB, hMNTLB, hMMTau, hMHTau, hMDTau);
-    fillInvariantMassHistogramsByNumBJets(unfittedEvent, hTauTauInvMass1BJet, hBBInvMass1BJet, hTauTauInvMass2BJet, hBBInvMass2BJet);
+    fillInvariantMassHistogramsByNumBJets(unfittedEvent, hTauTauInvMass1BJet, hBBInvMass1BJet, hTauTauInvMass2BJet, hBBInvMass2BJet, hAllInvMass1BJet, hAllInvMass2BJet);
   }
   for (auto fittedEvent : fittedEvents)
   {
-    fillHistograms(fittedEvent, hEtFit, hEtaFit, hPhiFit, hTauTauInvMassFit, hBBInvMassFit);
+    fillHistograms(fittedEvent, hEtFit, hEtaFit, hPhiFit, hTauTauInvMassFit, hBBInvMassFit, hAllInvMassFit);
     fillKinematicHistogramsByLeg(fittedEvent, "et", hEtBFit, hEtNTLBFit, hEtMTauFit, hEtHTauFit, hEtDTauFit);
     fillKinematicHistogramsByLeg(fittedEvent, "eta", hEtaBFit, hEtaNTLBFit, hEtaMTauFit, hEtaHTauFit, hEtaDTauFit);
     fillKinematicHistogramsByLeg(fittedEvent, "phi", hPhiBFit, hPhiNTLBFit, hPhiMTauFit, hPhiHTauFit, hPhiDTauFit);
     fillKinematicHistogramsByLeg(fittedEvent, "m", hMBFit, hMNTLBFit, hMMTauFit, hMHTauFit, hMDTauFit);
-    fillInvariantMassHistogramsByNumBJets(fittedEvent, hTauTauInvMass1BJetFit, hBBInvMass1BJetFit, hTauTauInvMass2BJetFit, hBBInvMass2BJetFit);
+    fillInvariantMassHistogramsByNumBJets(fittedEvent, hTauTauInvMass1BJetFit, hBBInvMass1BJetFit, hTauTauInvMass2BJetFit, hBBInvMass2BJetFit, hAllInvMass1BJetFit, hAllInvMass2BJetFit);
   }
 
   // Add
-  histograms = {hEt, hEta, hPhi, hTauTauInvMass, hBBInvMass, hEtFit, hEtaFit, hPhiFit, hTauTauInvMassFit, hBBInvMassFit, hEtB, hEtNTLB, hEtMTau, hEtHTau, hEtDTau, hEtBFit, hEtNTLBFit, hEtMTauFit, hEtHTauFit, hEtDTauFit, hEtaB, hEtaNTLB, hEtaMTau, hEtaHTau, hEtaDTau, hEtaBFit, hEtaNTLBFit, hEtaMTauFit, hEtaHTauFit, hEtaDTauFit, hPhiB, hPhiNTLB, hPhiMTau, hPhiHTau, hPhiDTau, hPhiBFit, hPhiNTLBFit, hPhiMTauFit, hPhiHTauFit, hPhiDTauFit, hMB, hMNTLB, hMMTau, hMHTau, hMDTau, hMBFit, hMNTLBFit, hMMTauFit, hMHTauFit, hMDTauFit, hTauTauInvMass1BJet, hBBInvMass1BJet, hTauTauInvMass2BJet, hBBInvMass2BJet, hTauTauInvMass1BJetFit, hBBInvMass1BJetFit, hTauTauInvMass2BJetFit, hBBInvMass2BJetFit};
+  histograms = {hEt, hEta, hPhi, hTauTauInvMass, hBBInvMass, hAllInvMass, hEtFit, hEtaFit, hPhiFit, hTauTauInvMassFit, hBBInvMassFit, hAllInvMassFit, hEtB, hEtNTLB, hEtMTau, hEtHTau, hEtDTau, hEtBFit, hEtNTLBFit, hEtMTauFit, hEtHTauFit, hEtDTauFit, hEtaB, hEtaNTLB, hEtaMTau, hEtaHTau, hEtaDTau, hEtaBFit, hEtaNTLBFit, hEtaMTauFit, hEtaHTauFit, hEtaDTauFit, hPhiB, hPhiNTLB, hPhiMTau, hPhiHTau, hPhiDTau, hPhiBFit, hPhiNTLBFit, hPhiMTauFit, hPhiHTauFit, hPhiDTauFit, hMB, hMNTLB, hMMTau, hMHTau, hMDTau, hMBFit, hMNTLBFit, hMMTauFit, hMHTauFit, hMDTauFit, hTauTauInvMass1BJet, hBBInvMass1BJet, hTauTauInvMass2BJet, hBBInvMass2BJet, hAllInvMass1BJet, hAllInvMass2BJet, hTauTauInvMass1BJetFit, hBBInvMass1BJetFit, hTauTauInvMass2BJetFit, hBBInvMass2BJetFit, hAllInvMass1BJetFit, hAllInvMass2BJetFit};
 }
 
 void KinFitOutputModule::drawHistograms()
