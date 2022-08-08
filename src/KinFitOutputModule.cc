@@ -35,7 +35,8 @@ Double_t KinFitOutputModule::ErrEt(Particle particle)
     }
     else if (particle.containsTag("ditau"))                 // Di-tau object
     {
-      return 10;
+      double ptUncertainty = 10;
+      return (particle.E() * ptUncertainty / particle.P());
     }
   }
   
