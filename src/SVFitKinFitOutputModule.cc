@@ -69,7 +69,6 @@ Particles SVFitKinFitOutputModule::fitEvent(Particles event)
   // print(fitter);
   
   Particles params;
-  params.addParticle(diTauPart);
   
   for (unsigned long int i = 0; i < particles.size(); i++)
   {
