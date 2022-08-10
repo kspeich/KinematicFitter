@@ -40,21 +40,25 @@ void KinFitEfficiency::addBackgrounds(std::vector<KinFitOutputModule> background
   }
 }
 
-void KinFitEfficiency::run(double peakMass, double lowerWidth, double upperWidth)
+void KinFitEfficiency::run(double pseudoscalarMass, double pseudoscalarLowerWidth, double pseudoscalarUpperWidth, double higgsMass, double higgsLowerWidth, double higgsUpperWidth)
 {
-  std::cout << "\nPseudoscalar Mass: " << peakMass << " GeV; Reconstruction from " << peakMass - lowerWidth << " GeV to " << peakMass + upperWidth << " GeV\n";
+  std::cout << "\nPseudoscalar Mass: " << pseudoscalarMass << " GeV; Reconstruction from " << pseudoscalarMass - pseudoscalarLowerWidth << " GeV to " << pseudoscalarMass + pseudoscalarUpperWidth << " GeV\n";
+  std::cout << "Higgs Mass: " << higgsMass << " GeV; Reconstruction from " << higgsMass - higgsLowerWidth << " GeV to " << higgsMass + higgsUpperWidth << " GeV\n";
   std::cout << "\nBefore kinematic fit: \n";
-  calculateRatio(false, peakMass, lowerWidth, upperWidth);
+  calculateRatio(false, pseudoscalarMass, pseudoscalarLowerWidth, pseudoscalarUpperWidth, higgsMass, higgsLowerWidth, higgsUpperWidth);
   std::cout << "\nAfter kinematic fit: \n";
-  calculateRatio(true, peakMass, lowerWidth, upperWidth);
+  calculateRatio(true, pseudoscalarMass, pseudoscalarLowerWidth, pseudoscalarUpperWidth, higgsMass, higgsLowerWidth, higgsUpperWidth);
 }
 
-void KinFitEfficiency::calculateRatio(bool fit, double peakMass, double lowerWidth, double upperWidth)
+void KinFitEfficiency::calculateRatio(bool fit, double pseudoscalarMass, double pseudoscalarLowerWidth, double pseudoscalarUpperWidth, double higgsMass, double higgsLowerWidth, double higgsUpperWidth)
 {
   double signalTauTau = 0;
   double signalBB = 0;
   double backgroundTauTau = 0;
   double backgroundBB = 0;
+
+  double signalHiggs = 0;
+  double backgroundHiggs = 0;
 
   // Pre-fit values
   std::vector<Particles> signal = signalEvents;
@@ -67,18 +71,20 @@ void KinFitEfficiency::calculateRatio(bool fit, double peakMass, double lowerWid
   }
 
   auto signalWeight = signalCrossSection * signalLuminosity / signal.size();
-  auto signalCounts = countPassedEvents(signal, signalWeight, peakMass, lowerWidth, upperWidth);
+  auto signalCounts = countPassedEvents(signal, signalWeight, pseudoscalarMass, pseudoscalarLowerWidth, pseudoscalarUpperWidth, higgsMass, higgsLowerWidth, higgsUpperWidth);
   
-  signalTauTau += signalCounts.first;
-  signalBB += signalCounts.second;
+  signalTauTau += signalCounts[0];
+  signalBB += signalCounts[1];
+  signalHiggs += signalCounts[2];
 
   for (unsigned long int i = 0; i < backgrounds.size(); i++)
   {
     auto backgroundWeight = backgroundCrossSections[i] * backgroundLuminosities[i] / backgrounds[i].size();
-    auto backgroundCounts = countPassedEvents(backgrounds[i], backgroundWeight, peakMass, lowerWidth, upperWidth);
+    auto backgroundCounts = countPassedEvents(backgrounds[i], backgroundWeight, pseudoscalarMass, pseudoscalarLowerWidth, pseudoscalarUpperWidth, higgsMass, higgsLowerWidth, higgsUpperWidth);
 
-    backgroundTauTau += backgroundCounts.first;
-    backgroundBB += backgroundCounts.second;
+    backgroundTauTau += backgroundCounts[0];
+    backgroundBB += backgroundCounts[1];
+    backgroundHiggs += backgroundCounts[2];
   }
 
   std::cout << "Tau Tau Signal Count: " << signalTauTau << "\t BB Signal Count: " << signalBB << std::endl;
@@ -87,27 +93,37 @@ void KinFitEfficiency::calculateRatio(bool fit, double peakMass, double lowerWid
   std::cout << "BB S/B ratio: " << (signalBB / backgroundBB) << std::endl;
   std::cout << "Tau Tau S/sqrt(S+B) ratio: " << (signalTauTau / pow(signalTauTau + backgroundTauTau, 0.5)) << std::endl;
   std::cout << "BB S/sqrt(S+B) ratio: " << (signalBB / pow(signalBB + backgroundBB, 0.5)) << std::endl;
+  std::cout << "Higgs Signal Count: " << signalHiggs << "\nHiggs Background Count: " << backgroundHiggs << std::endl;
+  std::cout << "Higgs S/B ratio: " << (signalHiggs / backgroundHiggs) << std::endl;
+  std::cout << "Higgs S/sqrt(S+B) ratio: " << (signalHiggs / pow(signalHiggs + backgroundHiggs, 0.5)) << std::endl;
 }
 
-std::pair<double, double> KinFitEfficiency::countPassedEvents(std::vector<Particles> events, double weight, double peakMass, double lowerWidth, double upperWidth)
+std::vector<double> KinFitEfficiency::countPassedEvents(std::vector<Particles> events, double weight, double pseudoscalarMass, double pseudoscalarLowerWidth, double pseudoscalarUpperWidth, double higgsMass, double higgsLowerWidth, double higgsUpperWidth)
 {
   double tautauCount = 0;
   double bbCount = 0;
+  double higgsCount = 0;
 
   for(auto event : events)
   {
     double tautauInvariantMass = event.getInvariantMass(15);
     double bbInvariantMass = event.getInvariantMass(5);
+    double allParticleInvariantMass = event.getInvariantMass();
 
-    if ((tautauInvariantMass <= (peakMass + upperWidth)) && (tautauInvariantMass >= (peakMass - lowerWidth)))
+    if ((tautauInvariantMass <= (pseudoscalarMass + pseudoscalarUpperWidth)) && (tautauInvariantMass >= (pseudoscalarMass - pseudoscalarLowerWidth)))
     {
       tautauCount += weight;
     }
-    if ((bbInvariantMass <= (peakMass + upperWidth)) && (bbInvariantMass >= (peakMass - lowerWidth)))
+    if ((bbInvariantMass <= (pseudoscalarMass + pseudoscalarUpperWidth)) && (bbInvariantMass >= (pseudoscalarMass - pseudoscalarLowerWidth)))
     {
       bbCount += weight;
     }
+    if ((allParticleInvariantMass <= (higgsMass + higgsUpperWidth)) && (allParticleInvariantMass >= (higgsMass - higgsLowerWidth)))
+    {
+      higgsCount += weight;
+    }
   }
 
-  return std::make_pair(tautauCount, bbCount);
+  std::vector<double> counts = {tautauCount, bbCount, higgsCount};
+  return counts;
 }

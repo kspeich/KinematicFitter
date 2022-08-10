@@ -54,14 +54,12 @@ void runKinFitter()
   kinFitEfficiency.addBackground(dyJetsKinFitOutputMod, dyJetsCrossSection, lumi);
   kinFitEfficiency.addBackground(ttLeptonicKinFitOutputMod, ttLeptonicCrossSection, lumi);
   kinFitEfficiency.addBackground(ttSemiLeptonicKinFitOutputMod, ttSemiLeptonicCrossSection, lumi);
-  kinFitEfficiency.run(45., 5., 5.);
-  kinFitEfficiency.run(45., 3., 3.);
+  kinFitEfficiency.run(45., 3., 3., 125., 50., 50.);
 
   std::cout << "\nSVFit Reco values: \n";
   auto svFitKinFitEfficiency = KinFitEfficiency(signalSVFitKinFitOutputMod, signalCrossSection, lumi);
   svFitKinFitEfficiency.addBackground(dyJetsSVFitKinFitOutputMod, dyJetsCrossSection, lumi);
   svFitKinFitEfficiency.addBackground(ttLeptonicSVFitKinFitOutputMod, ttLeptonicCrossSection, lumi);
   svFitKinFitEfficiency.addBackground(ttSemiLeptonicSVFitKinFitOutputMod, ttSemiLeptonicCrossSection, lumi);
-  svFitKinFitEfficiency.run(45., 5., 5.);
-  svFitKinFitEfficiency.run(45., 3., 3.);
+  svFitKinFitEfficiency.run(45., 3., 3., 125., 50., 50.);
 }

@@ -19,7 +19,7 @@ Particles SVFitKinFitOutputModule::fitEvent(Particles event)
   auto diTau = convertParticle(diTauPart);
   auto bJet1 = convertParticle(bJet1Part);
 
-  std::vector<TFitParticleEtEtaPhi*> particles = {bJet1};
+  std::vector<TFitParticleEtEtaPhi*> particles = {diTau, bJet1};
   std::vector<TFitConstraintM*> constraints;
 
   if (event.getNumParticles(5) == 2)  // Do everything including the second b-jet
@@ -32,12 +32,12 @@ Particles SVFitKinFitOutputModule::fitEvent(Particles event)
     mCons1->addParticles1(bJet1, bJet2);
 
     // All four particles must make a Higgs
-    //TFitConstraintM *mCons2 = new TFitConstraintM( "HiggsMassConstraint", "HiggsMass-Constraint", 0, 0, 125.);
-    //mCons2->addParticles1(diTau, bJet1, bJet2);
+    TFitConstraintM *mCons2 = new TFitConstraintM("HiggsMassConstraint", "HiggsMass-Constraint", 0, 0, 125.);
+    mCons2->addParticles1(diTau, bJet1, bJet2);
 
     particles.push_back(bJet2);
     constraints.push_back(mCons1);
-    //constraints.push_back(mCons2);
+    constraints.push_back(mCons2);
   }
   else    // Since we aren't fitting the ditau, and there is no constraint since there is no second b-jet to put a constraint on, just return the two objects
   {
@@ -69,8 +69,6 @@ Particles SVFitKinFitOutputModule::fitEvent(Particles event)
   // print(fitter);
   
   Particles params;
-  params.addParticle(diTauPart);
-  event.removeParticle(diTauPart);
   
   for (unsigned long int i = 0; i < particles.size(); i++)
   {

@@ -26,7 +26,7 @@ public:
   void addBackground(KinFitOutputModule background, double crossSection, double luminosity);
   void addBackgrounds(std::vector<KinFitOutputModule> backgrounds, std::vector<double> backgroundCrossSections, std::vector<double> backgroundLuminosities);
 
-  void run(double peakMass, double lowerWidth, double upperWidth);
+  void run(double pseudoscalarMass, double pseudoscalarLowerWidth, double pseudoscalarUpperWidth, double higgsMass, double higgsLowerWidth, double higgsUpperWidth);
 
 private:
   std::vector<Particles> signalEvents;
@@ -39,8 +39,8 @@ private:
   std::vector<double> backgroundLuminosities;
 
 
-  void calculateRatio(bool fit, double peakMass, double lowerWidth, double upperWidth);
-  std::pair<double, double> countPassedEvents(std::vector<Particles> events, double weight, double peakMass, double lowerWidth, double upperWidth);
+  void calculateRatio(bool fit, double pseudoscalarMass, double pseudoscalarLowerWidth, double pseudoscalarUpperWidth, double higgsMass, double higgsLowerWidth, double higgsUpperWidth);
+  std::vector<double> countPassedEvents(std::vector<Particles> events, double weight, double pseudoscalarMass, double pseudoscalarLowerWidth, double pseudoscalarUpperWidth, double higgsMass, double higgsLowerWidth, double higgsUpperWidth);
 };
 
 #endif
