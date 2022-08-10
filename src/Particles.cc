@@ -10,6 +10,15 @@ void Particles::addParticle(TLorentzVector particleVec, int pdgId, std::vector<s
   particles.push_back(particle);
 }
 
+void Particles::removeParticle(Particle particle)
+{
+  auto position = std::find(particles.begin(), particles.end(), particle);
+  if (position != particles.end())
+  {
+    particles.erase(position);
+  }
+}
+
 double Particles::getInvariantMass()
 {
   TLorentzVector sum;

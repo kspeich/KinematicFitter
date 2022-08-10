@@ -32,7 +32,19 @@ void plotOutput()
   TFile* svFitTTLeptonic = TFile::Open("Histograms/RecoSVFitTTLeptonicKinFitHistograms.root");
   TFile* svFitTTSemiLeptonic = TFile::Open("Histograms/RecoSVFitTTSemiLeptonicKinFitHistograms.root");
 
-  plotKinematics(recoSignal, "H->aa->bbtautau");
+  std::vector<TFile*> svFitFiles = {svFitSignal, svFitDYJets, svFitTTLeptonic, svFitTTSemiLeptonic};
+  std::vector<std::string> legends = {"H->aa->bbtautau Signal", "DY Jets", "TT Leptonic", "TT Semi-Leptonic"};
+  std::vector<Color_t> colors = {kBlue, kRed, kGreen, kGray};
+
+  overlayPlots("All-Particle Invariant Mass (without Kinematic Fit, with SVFit)", "Invariant Mass (GeV)", "Number of Events", svFitFiles, {"Unfitted All-Particle Invariant Mass;1", "Unfitted All-Particle Invariant Mass;1", "Unfitted All-Particle Invariant Mass;1", "Unfitted All-Particle Invariant Mass;1"}, legends, colors);
+  overlayPlots("All-Particle Invariant Mass (with Kinematic Fit, with SVFit)", "Invariant Mass (GeV)", "Number of Events", svFitFiles, {"Fitted All-Particle Invariant Mass;1", "Fitted All-Particle Invariant Mass;1", "Fitted All-Particle Invariant Mass;1", "Fitted All-Particle Invariant Mass;1"}, legends, colors);
+
+  overlayPlots("All-Particle Invariant Mass for Events with 1 b-jet (without Kinematic Fit, with SVFit)", "Invariant Mass (GeV)", "Number of Events", svFitFiles, {"Unfitted All-Particle Invariant Mass (1 b-jet);1", "Unfitted All-Particle Invariant Mass (1 b-jet);1", "Unfitted All-Particle Invariant Mass (1 b-jet);1", "Unfitted All-Particle Invariant Mass (1 b-jet);1"}, legends, colors);
+  overlayPlots("All-Particle Invariant Mass for Events with 1 b-jet (with Kinematic Fit, with SVFit)", "Invariant Mass (GeV)", "Number of Events", svFitFiles, {"Fitted All-Particle Invariant Mass (1 b-jet);1", "Fitted All-Particle Invariant Mass (1 b-jet);1", "Fitted All-Particle Invariant Mass (1 b-jet);1", "Fitted All-Particle Invariant Mass (1 b-jet);1"}, legends, colors);
+  overlayPlots("All-Particle Invariant Mass for Events with 2 b-jets (without Kinematic Fit, with SVFit)", "Invariant Mass (GeV)", "Number of Events", svFitFiles, {"Unfitted All-Particle Invariant Mass (2 b-jets);1", "Unfitted All-Particle Invariant Mass (2 b-jets);1", "Unfitted All-Particle Invariant Mass (2 b-jets);1", "Unfitted All-Particle Invariant Mass (2 b-jets);1"}, legends, colors);
+  overlayPlots("All-Particle Invariant Mass for Events with 2 b-jets (with Kinematic Fit, with SVFit)", "Invariant Mass (GeV)", "Number of Events", svFitFiles, {"Fitted All-Particle Invariant Mass (2 b-jets);1", "Fitted All-Particle Invariant Mass (2 b-jets);1", "Fitted All-Particle Invariant Mass (2 b-jets);1", "Fitted All-Particle Invariant Mass (2 b-jets);1"}, legends, colors);
+
+  /*plotKinematics(recoSignal, "H->aa->bbtautau");
   plotInvariantMasses(recoSignal, recoDYJets, recoTTLeptonic, recoTTSemiLeptonic);
   plotKinematics(svFitSignal, "H->aa->bbtautau", true);
   plotInvariantMasses(svFitSignal, svFitDYJets, svFitTTLeptonic, svFitTTSemiLeptonic, true);
@@ -41,7 +53,7 @@ void plotOutput()
   compareInvariantMasses(recoSignal, svFitSignal, recoDYJets, svFitDYJets, recoTTLeptonic, svFitTTLeptonic, recoTTSemiLeptonic, svFitTTSemiLeptonic, false, 1);
   compareInvariantMasses(recoSignal, svFitSignal, recoDYJets, svFitDYJets, recoTTLeptonic, svFitTTLeptonic, recoTTSemiLeptonic, svFitTTSemiLeptonic, true, 1);
   compareInvariantMasses(recoSignal, svFitSignal, recoDYJets, svFitDYJets, recoTTLeptonic, svFitTTLeptonic, recoTTSemiLeptonic, svFitTTSemiLeptonic, false, 2);
-  compareInvariantMasses(recoSignal, svFitSignal, recoDYJets, svFitDYJets, recoTTLeptonic, svFitTTLeptonic, recoTTSemiLeptonic, svFitTTSemiLeptonic, true, 2);
+  compareInvariantMasses(recoSignal, svFitSignal, recoDYJets, svFitDYJets, recoTTLeptonic, svFitTTLeptonic, recoTTSemiLeptonic, svFitTTSemiLeptonic, true, 2);*/
   //compareLegs(recoSignal, "H->aa->bbtautau");
   //compareLegs(recoSignal, "H->aa->bbtautau", false, true);
   //compareLegs(svFitSignal, "H->aa->bbtautau", true);
@@ -100,23 +112,23 @@ void overlayPlots(std::string canvasName, std::string xAxis, std::string yAxis, 
 
 void plotKinematics(TFile* file, std::string process, bool svFit)
 {
-  std::string suffix = "(Reco)";
+  std::string suffix = "";
   if (svFit)
   {
-    suffix = "(SVFitted Reco)";
+    suffix = "(with SVFit Di-Tau)";
   }
 
-  overlayPlots(process + " Final State Transverse Energy " + suffix, "Transverse Energy (GeV)", "Number of Events", {file, file}, {"Unfitted Transverse Energy;1", "Fitted Transverse Energy;1"}, {"Before Kinematic Fit", "Kinematic Fit"}, {kBlue, kRed});
-  overlayPlots(process + " Final State Pseudorapidity " + suffix, "Pseudorapidity", "Number of Events", {file, file}, {"Unfitted Eta;1", "Fitted Eta;1"}, {"Before Kinematic Fit", "Kinematic Fit"}, {kBlue, kRed});
-  overlayPlots(process + " Final State Phi " + suffix, "Phi", "Number of Events", {file, file}, {"Unfitted Phi;1", "Fitted Phi;1"}, {"Before Kinematic Fit", "Kinematic Fit"}, {kBlue, kRed});
+  overlayPlots(process + " Final State Transverse Energy " + suffix, "Transverse Energy (GeV)", "Number of Events", {file, file}, {"Unfitted Transverse Energy;1", "Fitted Transverse Energy;1"}, {"Before Kinematic Fit", "After Kinematic Fit"}, {kBlue, kRed});
+  overlayPlots(process + " Final State Pseudorapidity " + suffix, "Pseudorapidity", "Number of Events", {file, file}, {"Unfitted Eta;1", "Fitted Eta;1"}, {"Before Kinematic Fit", "After Kinematic Fit"}, {kBlue, kRed});
+  overlayPlots(process + " Final State Phi " + suffix, "Phi", "Number of Events", {file, file}, {"Unfitted Phi;1", "Fitted Phi;1"}, {"Before Kinematic Fit", "After Kinematic Fit"}, {kBlue, kRed});
 }
 
 void plotInvariantMasses(TFile* signalKinFitHistograms, TFile* dyJetsKinFitHistograms, TFile* ttLeptonicKinFitHistograms, TFile* ttSemiLeptonicKinFitHistograms, bool svFit)
 {
-  std::string suffix = "(Reco)";
+  std::string suffix = "(no SVFit)";
   if (svFit)
   {
-    suffix = "(SVFitted Reco)";
+    suffix = "(with SVFit Di-Tau)";
   }
 
   overlayPlots("H->aa->bbtautau Tau Tau Invariant Mass " + suffix, "Invariant Mass (GeV)", "Number of Events", {signalKinFitHistograms, signalKinFitHistograms}, {"Unfitted Tau Tau Invariant Mass;1", "Fitted Tau Tau Invariant Mass;1"}, {"Before Kinematic Fit", "After Kinematic Fit"}, {kBlue, kRed});
@@ -124,18 +136,22 @@ void plotInvariantMasses(TFile* signalKinFitHistograms, TFile* dyJetsKinFitHisto
   overlayPlots("H->aa->bbtautau All-Particle Invariant Mass " + suffix, "Invariant Mass (GeV)", "Number of Events", {signalKinFitHistograms, signalKinFitHistograms}, {"Unfitted All-Particle Invariant Mass;1", "Fitted All-Particle Invariant Mass;1"}, {"Before Kinematic Fit", "After Kinematic Fit"}, {kBlue, kRed});
   overlayPlots("DY Jets Tau Tau Invariant Mass " + suffix, "Invariant Mass (GeV)", "Number of Events", {dyJetsKinFitHistograms, dyJetsKinFitHistograms}, {"Unfitted Tau Tau Invariant Mass;1", "Fitted Tau Tau Invariant Mass;1"}, {"Before Kinematic Fit", "After Kinematic Fit"}, {kBlue, kRed});
   overlayPlots("DY Jets BB Invariant Mass " + suffix, "Invariant Mass (GeV)", "Number of Events", {dyJetsKinFitHistograms, dyJetsKinFitHistograms}, {"Unfitted BB Invariant Mass;1", "Fitted BB Invariant Mass;1"}, {"Before Kinematic Fit", "After Kinematic Fit"}, {kBlue, kRed});
+  overlayPlots("DY Jets All-Particle Invariant Mass " + suffix, "Invariant Mass (GeV)", "Number of Events", {dyJetsKinFitHistograms, dyJetsKinFitHistograms}, {"Unfitted All-Particle Invariant Mass;1", "Fitted All-Particle Invariant Mass;1"}, {"Before Kinematic Fit", "After Kinematic Fit"}, {kBlue, kRed});
   overlayPlots("TT Leptonic Tau Tau Invariant Mass " + suffix, "Invariant Mass (GeV)", "Number of Events", {ttLeptonicKinFitHistograms, ttLeptonicKinFitHistograms}, {"Unfitted Tau Tau Invariant Mass;1", "Fitted Tau Tau Invariant Mass;1"}, {"Before Kinematic Fit", "After Kinematic Fit"}, {kBlue, kRed});
   overlayPlots("TT Leptonic BB Invariant Mass " + suffix, "Invariant Mass (GeV)", "Number of Events", {ttLeptonicKinFitHistograms, ttLeptonicKinFitHistograms}, {"Unfitted BB Invariant Mass;1", "Fitted BB Invariant Mass;1"}, {"Before Kinematic Fit", "After Kinematic Fit"}, {kBlue, kRed});
+  overlayPlots("TT Leptonic All-Particle Invariant Mass " + suffix, "Invariant Mass (GeV)", "Number of Events", {ttLeptonicKinFitHistograms, ttLeptonicKinFitHistograms}, {"Unfitted All-Particle Invariant Mass;1", "Fitted All-Particle Invariant Mass;1"}, {"Before Kinematic Fit", "After Kinematic Fit"}, {kBlue, kRed});
   overlayPlots("TT Semi-Leptonic Tau Tau Invariant Mass " + suffix, "Invariant Mass (GeV)", "Number of Events", {ttSemiLeptonicKinFitHistograms, ttSemiLeptonicKinFitHistograms}, {"Unfitted Tau Tau Invariant Mass;1", "Fitted Tau Tau Invariant Mass;1"}, {"Before Kinematic Fit", "After Kinematic Fit"}, {kBlue, kRed});
   overlayPlots("TT Semi-Leptonic BB Invariant Mass " + suffix, "Invariant Mass (GeV)", "Number of Events", {ttSemiLeptonicKinFitHistograms, ttSemiLeptonicKinFitHistograms}, {"Unfitted BB Invariant Mass;1", "Fitted BB Invariant Mass;1"}, {"Before Kinematic Fit", "After Kinematic Fit"}, {kBlue, kRed});
+  overlayPlots("TT Semi-Leptonic All-Particle Invariant Mass " + suffix, "Invariant Mass (GeV)", "Number of Events", {ttSemiLeptonicKinFitHistograms, ttSemiLeptonicKinFitHistograms}, {"Unfitted All-Particle Invariant Mass;1", "Fitted All-Particle Invariant Mass;1"}, {"Before Kinematic Fit", "After Kinematic Fit"}, {kBlue, kRed});
+
 
   std::vector<TFile*> files = {signalKinFitHistograms, dyJetsKinFitHistograms, ttLeptonicKinFitHistograms, ttSemiLeptonicKinFitHistograms};
   std::vector<std::string> legends = {"H->aa->bbtautau", "DY Jets", "TT Leptonic", "TT Semi-Leptonic"};
   std::vector<Color_t> colors = {kBlue, kRed, kGreen, kGray};
-  overlayPlots("Unfitted Tau Tau Invariant Mass " + suffix, "Invariant Mass (GeV)", "Number of Events", files, {"Unfitted Tau Tau Invariant Mass;1", "Unfitted Tau Tau Invariant Mass;1", "Unfitted Tau Tau Invariant Mass;1", "Unfitted Tau Tau Invariant Mass;1"}, legends, colors);
-  overlayPlots("Unfitted BB Invariant Mass " + suffix, "Invariant Mass (GeV)", "Number of Events", files, {"Unfitted BB Invariant Mass;1", "Unfitted BB Invariant Mass;1", "Unfitted BB Invariant Mass;1", "Unfitted BB Invariant Mass;1"}, legends, colors);
-  overlayPlots("Fitted Tau Tau Invariant Mass " + suffix, "Invariant Mass (GeV)", "Number of Events", files, {"Fitted Tau Tau Invariant Mass;1", "Fitted Tau Tau Invariant Mass;1", "Fitted Tau Tau Invariant Mass;1", "Fitted Tau Tau Invariant Mass;1"}, legends, colors);
-  overlayPlots("Fitted BB Invariant Mass " + suffix, "Invariant Mass (GeV)", "Number of Events", files, {"Fitted BB Invariant Mass;1", "Fitted BB Invariant Mass;1", "Fitted BB Invariant Mass;1", "Fitted BB Invariant Mass;1"}, legends, colors);
+  overlayPlots("Tau Tau Invariant Mass " + suffix, "Invariant Mass (GeV)", "Number of Events", files, {"Unfitted Tau Tau Invariant Mass;1", "Unfitted Tau Tau Invariant Mass;1", "Unfitted Tau Tau Invariant Mass;1", "Unfitted Tau Tau Invariant Mass;1"}, legends, colors);
+  overlayPlots("BB Invariant Mass " + suffix, "Invariant Mass (GeV)", "Number of Events", files, {"Unfitted BB Invariant Mass;1", "Unfitted BB Invariant Mass;1", "Unfitted BB Invariant Mass;1", "Unfitted BB Invariant Mass;1"}, legends, colors);
+  overlayPlots("Kinematic Fitted Tau Tau Invariant Mass " + suffix, "Invariant Mass (GeV)", "Number of Events", files, {"Fitted Tau Tau Invariant Mass;1", "Fitted Tau Tau Invariant Mass;1", "Fitted Tau Tau Invariant Mass;1", "Fitted Tau Tau Invariant Mass;1"}, legends, colors);
+  overlayPlots("Kinematic Fitted BB Invariant Mass " + suffix, "Invariant Mass (GeV)", "Number of Events", files, {"Fitted BB Invariant Mass;1", "Fitted BB Invariant Mass;1", "Fitted BB Invariant Mass;1", "Fitted BB Invariant Mass;1"}, legends, colors);
 
 }
 
@@ -173,10 +189,13 @@ void compareInvariantMasses(TFile* signalKinFitHistograms, TFile* svFitSignalKin
   overlayPlots("H->aa->bbtautau All-Particle Invariant Mass " + suffixPrefix + suffix, "Invariant Mass (GeV)", "Number of Events", {signalKinFitHistograms, svFitSignalKinFitHistograms}, allHistNames, {"Reco", "SVFit"}, {kBlue, kRed});
   overlayPlots("DY Jets Tau Tau Invariant Mass " + suffixPrefix + suffix, "Invariant Mass (GeV)", "Number of Events", {dyJetsKinFitHistograms, svFitDYJetsKinFitHistograms}, tautauHistNames, {"Reco", "SVFit"}, {kBlue, kRed});
   overlayPlots("DY Jets BB Invariant Mass " + suffixPrefix + suffix, "Invariant Mass (GeV)", "Number of Events", {dyJetsKinFitHistograms, svFitDYJetsKinFitHistograms}, bbHistNames, {"Reco", "SVFit"}, {kBlue, kRed});
+  overlayPlots("DY Jets All-Particle Invariant Mass " + suffixPrefix + suffix, "Invariant Mass (GeV)", "Number of Events", {dyJetsKinFitHistograms, svFitDYJetsKinFitHistograms}, allHistNames, {"Reco", "SVFit"}, {kBlue, kRed});
   overlayPlots("TT Leptonic Tau Tau Invariant Mass " + suffixPrefix + suffix, "Invariant Mass (GeV)", "Number of Events", {ttLeptonicKinFitHistograms, svFitTTLeptonicKinFitHistograms}, tautauHistNames, {"Reco", "SVFit"}, {kBlue, kRed});
   overlayPlots("TT Leptonic BB Invariant Mass " + suffixPrefix + suffix, "Invariant Mass (GeV)", "Number of Events", {ttLeptonicKinFitHistograms, svFitTTLeptonicKinFitHistograms}, bbHistNames, {"Reco", "SVFit"}, {kBlue, kRed});
+  overlayPlots("TT Leptonic All-Particle Invariant Mass " + suffixPrefix + suffix, "Invariant Mass (GeV)", "Number of Events", {ttLeptonicKinFitHistograms, svFitTTLeptonicKinFitHistograms}, allHistNames, {"Reco", "SVFit"}, {kBlue, kRed});
   overlayPlots("TT Semi-Leptonic Tau Tau Invariant Mass " + suffixPrefix + suffix, "Invariant Mass (GeV)", "Number of Events", {ttSemiLeptonicKinFitHistograms, svFitTTSemiLeptonicKinFitHistograms}, tautauHistNames, {"Reco", "SVFit"}, {kBlue, kRed});
   overlayPlots("TT Semi-Leptonic BB Invariant Mass " + suffixPrefix + suffix, "Invariant Mass (GeV)", "Number of Events", {ttSemiLeptonicKinFitHistograms, svFitTTSemiLeptonicKinFitHistograms}, bbHistNames, {"Reco", "SVFit"}, {kBlue, kRed});
+  overlayPlots("TT Semi-Leptonic All-Particle Invariant Mass " + suffixPrefix + suffix, "Invariant Mass (GeV)", "Number of Events", {ttSemiLeptonicKinFitHistograms, svFitTTSemiLeptonicKinFitHistograms}, allHistNames, {"Reco", "SVFit"}, {kBlue, kRed});
 }
 
 void compareLegs(TFile* file, std::string process, bool svFit, bool kinFit)

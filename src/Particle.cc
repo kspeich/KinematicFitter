@@ -16,6 +16,11 @@ Particle::Particle(TLorentzVector iFourVector, int iPdgId, std::vector<std::stri
 {
 }
 
+bool Particle::operator == (Particle otherParticle)
+{
+  return (otherParticle.getFourVector() == fourVector && otherParticle.getPdgId() == pdgId && otherParticle.getTags() == tags);
+}
+
 bool Particle::containsTag(std::string tag)
 {
   bool containsTag = false;

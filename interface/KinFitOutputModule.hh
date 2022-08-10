@@ -37,6 +37,8 @@ protected:
 
   std::string outputFile;
 
+  int maxEvents;
+
   Double_t ErrEt(Particle particle);
   Double_t ErrEta(Particle particle);
   Double_t ErrPhi(Particle particle);
@@ -52,7 +54,7 @@ protected:
   void fillHistograms(Particles event, TH1F* hEt, TH1F* hEta, TH1F* hPhi, TH1F* hTauTauInvMass, TH1F* hBBInvMass, TH1F* hAllInvMass);
   void fillKinematicHistograms(Particles event, TH1F* hEt, TH1F* hEta, TH1F* hPhi);
   void fillInvariantMassHistograms(Particles event, TH1F* hTauTauInvMass, TH1F* hBBInvMass, TH1F* hAllInvMass);
-  void fillInvariantMassHistogramsByNumBJets(Particles event, TH1F* hTauTauInvMass1Jet, TH1F* hBBInvMass1Jet, TH1F* hTauTauInvMass2Jet, TH1F* hBBInvMass2Jet, TH1F* hAllInvMass1BJet, TH1F* hAllInvMass2BJet);
+  void fillInvariantMassHistogramsByNumBJets(Particles event, TH1F* hTauTauInvMass1Jet, TH1F* hBBInvMass1Jet, TH1F* hTauTauInvMass2Jet, TH1F* hBBInvMass2Jet, TH1F* hAllInvMass1Jet, TH1F* hAllInvMass2Jet);
   void fillHistogramOneParticle(Particle particle, std::string kinematic, TH1F* h);
   void fillKinematicHistogramsByLeg(Particles event, std::string kinematic, TH1F* hLeadingB, TH1F* hNTLB, TH1F* hMTau, TH1F* hHTau, TH1F* hDTau);
 

@@ -13,6 +13,8 @@ public:
   Particle(TLorentzVector iFourVector, int iPdgId, std::vector<std::string> iTags);
   ~Particle() {};
 
+  bool operator == (Particle otherParticle);
+
   TLorentzVector getFourVector() {return fourVector;};
   int getPdgId() {return pdgId;};
   std::vector<std::string> getTags() {return tags;};

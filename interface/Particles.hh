@@ -19,6 +19,7 @@ public:
 
   void addParticle(Particle particle) {particles.push_back(particle);};
   void addParticle(TLorentzVector particle, int pdgId, std::vector<std::string> tags = {});
+  void removeParticle(Particle particle);
 
   std::vector<Particle> getParticles() {return particles;};
   Particles getParticles(int pdgId);

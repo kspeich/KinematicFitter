@@ -6,7 +6,8 @@
 
 KinFitOutputModule::KinFitOutputModule(TTree* iTree, std::string iOutputFile) :
   tree(iTree),
-  outputFile(iOutputFile)
+  outputFile(iOutputFile),
+  maxEvents(100000)
 {}
 
 void KinFitOutputModule::run()
@@ -255,9 +256,9 @@ void KinFitOutputModule::runFitter()
 
   // Loop through each event, perform necessary calculations, and fill the histograms
   int max = tree->GetEntries();
-  if (max > 100000)
+  if (max > maxEvents)
   {
-    max = 100000;
+    max = maxEvents;
   }
   for(int i = 0; i < max; i++)   // GetEntries() returns the # of entries in the branch
   {
@@ -319,17 +320,17 @@ void KinFitOutputModule::fillInvariantMassHistograms(Particles event, TH1F* hTau
   hAllInvMass->Fill(event.getInvariantMass());
 }
 
-void KinFitOutputModule::fillInvariantMassHistogramsByNumBJets(Particles event, TH1F* hTauTauInvMass1Jet, TH1F* hBBInvMass1Jet, TH1F* hTauTauInvMass2Jet, TH1F* hBBInvMass2Jet, TH1F* hAllInvMass1BJet, TH1F* hAllInvMass2BJet)
+void KinFitOutputModule::fillInvariantMassHistogramsByNumBJets(Particles event, TH1F* hTauTauInvMass1Jet, TH1F* hBBInvMass1Jet, TH1F* hTauTauInvMass2Jet, TH1F* hBBInvMass2Jet, TH1F* hAllInvMass1Jet, TH1F* hAllInvMass2Jet)
 {
   // Fills either the histograms for 1 b-jet or the histograms for 2 b-jets
   
   if (event.getNumParticles(5) == 1)
   {
-    fillInvariantMassHistograms(event, hTauTauInvMass1Jet, hBBInvMass1Jet, hAllInvMass1BJet);
+    fillInvariantMassHistograms(event, hTauTauInvMass1Jet, hBBInvMass1Jet, hAllInvMass1Jet);
   }
   else if (event.getNumParticles(5) == 2)
   {
-    fillInvariantMassHistograms(event, hTauTauInvMass2Jet, hBBInvMass2Jet, hAllInvMass2BJet);
+    fillInvariantMassHistograms(event, hTauTauInvMass2Jet, hBBInvMass2Jet, hAllInvMass2Jet);
   }
 }
 
