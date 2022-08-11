@@ -63,7 +63,9 @@ Double_t KinFitOutputModule::ErrEta(Particle particle)
 
       double thetaUncertainty = abs(atan(spatialUncertainty / radius));
 
-      return abs(-log(tan(0.5 * (particle.Theta() + thetaUncertainty))) - particle.Eta());
+      double etaDerivative = -1.0 / sin(particle.Theta());                // d(eta)/d(theta) = -csc(theta)
+
+      return thetaUncertainty * etaDerivative;                            // deltaEta = d(eta)/d(theta) * deltaTheta (roughly)
     }
     else if (particle.containsTag("ditau"))                 // Di-tau object
     {
