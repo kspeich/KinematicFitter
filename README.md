@@ -3,7 +3,7 @@ Kinematic Fitting algorithms for a CMS $H\rightarrow aa\rightarrow b\overline{b}
 
 By Kodai Speich, Princeton University
 
-This mostly-C++ repository builds off the kinematic fitting algorithm that already exists in ```/cmssw/PhysicsTools/KinFitter```, and can be cloned into ```/cmssw/PhysicsTools```.
+This mostly-C++ repository builds off the kinematic fitting algorithm that already exists in ```/cmssw/PhysicsTools/KinFitter```, and can be cloned into ```/cmssw/PhysicsTools```.  The ROOT files are read in ```test/runKinFitter.cc```, lines 13-27, and can (should) be changed to the appropriate files.
 
 This repository contains three directories.  ```interface``` contains the header files for all of the classes, ```src``` contains the corresponding source files, and ```test``` contains C++ macros as well as histograms and plots.  The classes contained in this repository are mostly particle and constraint classes -- derived classes of ```TAbsFitParticle``` and ```TAbsFitConstraint```, respectively.  These particles and constraints can be added to a ```TKinFitter``` object and then fit.
 
